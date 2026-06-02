@@ -189,6 +189,7 @@ export default function SettingsPage() {
       }
 
       const updates = {
+        id: user.id,
         age: form.age ? +form.age : null,
         gender: form.gender || null,
         height_cm: form.height_cm ? +form.height_cm : null,
@@ -206,13 +207,15 @@ export default function SettingsPage() {
         updated_at: new Date().toISOString(),
       }
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
 
-      if (error) {
-        setProfileMsg({ type: 'error', text: error.message })
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: 'Failed to save profile.' }))
+        setProfileMsg({ type: 'error', text: error || 'Failed to save profile.' })
       } else {
         setProfileMsg({ type: 'success', text: 'Profile updated successfully.' })
       }
@@ -284,8 +287,18 @@ export default function SettingsPage() {
         return
       }
 
-      // Delete profile row
-      await supabase.from('profiles').delete().eq('id', user.id)
+      // Delete profile row via API (bypasses RLS)
+      const res = await fetch('/api/profile', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: user.id }),
+      })
+
+      if (!res.ok) {
+        setDeleteMsg({ type: 'error', text: 'Failed to delete profile data.' })
+        setDeleting(false)
+        return
+      }
 
       // Sign out and redirect
       await supabase.auth.signOut()

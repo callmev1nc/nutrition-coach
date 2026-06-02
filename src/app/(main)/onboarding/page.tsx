@@ -178,7 +178,6 @@ export default function OnboardingPage() {
       } = await supabase.auth.getUser()
       if (authError || !user) {
         setError('Not authenticated. Please log in again.')
-        setLoading(false)
         return
       }
 
@@ -203,19 +202,33 @@ export default function OnboardingPage() {
         updated_at: new Date().toISOString(),
       }
 
-      const { error: upsertError } = await supabase
-        .from('profiles')
-        .upsert(profile, { onConflict: 'id' })
+      const timeoutPromise = new Promise<Response>((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), 15000)
+      )
 
-      if (upsertError) {
-        setError(upsertError.message)
-        setLoading(false)
+      const res = await Promise.race([
+        fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profile),
+        }),
+        timeoutPromise,
+      ])
+
+      if (!res.ok) {
+        const { error } = await res.json()
+        setError(error || 'Failed to save profile. Please try again.')
         return
       }
 
-      router.push('/dashboard')
-    } catch {
-      setError('Something went wrong. Please try again.')
+      router.replace('/dashboard')
+    } catch (err) {
+      if (err instanceof Error && err.message === 'Request timed out') {
+        setError('Request timed out. Please try again.')
+      } else {
+        setError('Something went wrong. Please try again.')
+      }
+    } finally {
       setLoading(false)
     }
   }
