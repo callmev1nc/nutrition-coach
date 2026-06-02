@@ -215,7 +215,7 @@ export default function DashboardPage() {
           .select('*')
           .eq('user_id', user.id)
           .eq('date', new Date().toISOString().split('T')[0])
-          .single(),
+          .maybeSingle(),
       ])
 
       if (profRes.data) setProfile(profRes.data)

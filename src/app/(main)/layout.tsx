@@ -220,10 +220,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {/* Mobile header */}
         <header className="flex h-14 items-center gap-3 border-b border-white/[0.06] px-4 lg:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger>
-              <Button variant="ghost" size="icon" className="text-gray-400">
-                <PanelLeft className="h-5 w-5" />
-              </Button>
+            <SheetTrigger
+              render={
+                <Button variant="ghost" size="icon" className="text-gray-400" />
+              }
+            >
+              <PanelLeft className="h-5 w-5" />
             </SheetTrigger>
           </Sheet>
           <div className="flex items-center gap-2">

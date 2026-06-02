@@ -779,14 +779,16 @@ export default function SettingsPage() {
                     Permanently delete your account and all data
                   </p>
                 </div>
-                <DialogTrigger>
-                  <Button
-                    variant="outline"
-                    className="bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </Button>
+                <DialogTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      className="bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300"
+                    />
+                  }
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
                 </DialogTrigger>
               </div>
 
