@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { ShoppingCart, Loader2, Sparkles, CheckCircle2, Circle, DollarSign } from 'lucide-react'
 import type { UserProfile } from '@/types'
+import { safeStorage } from '@/lib/safe-storage'
 
 const staticCategories = [
   { name: 'Produce', items: [
@@ -81,12 +82,12 @@ export default function GroceryPage() {
   const currentTotal = useAi && aiList ? aiTotalCost : totalCost
 
   useEffect(() => {
-    const saved = localStorage.getItem('grocery-checklist')
+    const saved = safeStorage.getItem('grocery-checklist')
     if (saved) setChecklist(new Set(JSON.parse(saved)))
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('grocery-checklist', JSON.stringify([...checklist]))
+    safeStorage.setItem('grocery-checklist', JSON.stringify([...checklist]))
   }, [checklist])
 
   const toggleCheck = (key: string) => {

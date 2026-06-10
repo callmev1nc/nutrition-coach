@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Cookie, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Circle, User } from 'lucide-react'
 import type { UserProfile } from '@/types'
+import { safeStorage } from '@/lib/safe-storage'
 
 const plan7 = [
   { day: 1, theme: 'Trigger Interruption', color: 'text-red-400 bg-red-500/10', actions: ['Identify your top 3 craving triggers and write them down', 'When craving hits, immediately stand up and change rooms', 'Set a phone timer for 10 minutes before giving in'], replacement: 'Dark chocolate square (20 cal) instead of candy bar', envTip: 'Remove trigger foods from your kitchen today', emergency: 'Drink 500ml ice water + 5 deep breaths' },
@@ -28,12 +29,12 @@ export default function CravingsPage() {
   const [completedActions, setCompletedActions] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    const saved = localStorage.getItem('cravings-completed')
+    const saved = safeStorage.getItem('cravings-completed')
     if (saved) setCompletedActions(new Set(JSON.parse(saved)))
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('cravings-completed', JSON.stringify([...completedActions]))
+    safeStorage.setItem('cravings-completed', JSON.stringify([...completedActions]))
   }, [completedActions])
 
   const loadProfile = useCallback(async () => {

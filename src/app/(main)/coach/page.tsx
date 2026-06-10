@@ -41,7 +41,7 @@ export default function CoachPage() {
   }
 
   return (
-    <div className="space-y-4 h-[calc(100vh-8rem)] flex flex-col">
+    <div className="space-y-4 safari-safe-height flex flex-col">
       <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-3"><MessageCircle className="w-7 h-7 text-indigo-400" />AI Coach Chat</h1>
       <div className="flex-1 overflow-y-auto space-y-3 pr-2">
         {messages.length === 0 && <Card className="bg-[#1a1d27] border-[#2a2d37]"><CardContent className="pt-4"><p className="text-gray-400 text-center">Start a conversation with your AI coach. Ask about nutrition, workouts, or motivation.</p></CardContent></Card>}
