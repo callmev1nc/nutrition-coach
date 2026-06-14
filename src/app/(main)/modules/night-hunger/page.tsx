@@ -230,14 +230,14 @@ const difficultyConfig = {
 function TimePicker({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-gray-300 text-sm">{label}</Label>
+      <Label className="text-foreground text-sm">{label}</Label>
       <div className="relative">
-        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400 pointer-events-none" />
+        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
         <input
           type="time"
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full h-9 rounded-lg border border-[#2a2d37] bg-[#0c0e14] pl-9 pr-3 text-sm text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition-colors"
+          className="w-full h-9 rounded-lg border border bg-background pl-9 pr-3 text-sm text-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition-colors"
         />
       </div>
     </div>
@@ -248,12 +248,12 @@ function HungerAssessment({ answers, setAnswers }: { answers: number[]; setAnswe
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-2">
-        <Brain className="w-4 h-4 text-indigo-400" />
-        <p className="text-sm text-gray-300 font-medium">Hunger Type Assessment</p>
+        <Brain className="w-4 h-4 text-primary" />
+        <p className="text-sm text-foreground font-medium">Hunger Type Assessment</p>
       </div>
       {hungerQuestions.map((q, qi) => (
         <div key={qi} className="space-y-2">
-          <p className="text-sm text-gray-400">{qi + 1}. {q}</p>
+          <p className="text-sm text-muted-foreground">{qi + 1}. {q}</p>
           <div className="flex gap-1">
             {hungerLabels.map((label, li) => (
               <button
@@ -266,8 +266,8 @@ function HungerAssessment({ answers, setAnswers }: { answers: number[]; setAnswe
                 }}
                 className={`flex-1 py-1.5 px-1 rounded-md text-[10px] leading-tight font-medium transition-all border ${
                   answers[qi] === li + 1
-                    ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
-                    : 'bg-[#0c0e14] text-gray-500 border-[#2a2d37] hover:border-purple-500/20 hover:text-gray-400'
+                    ? 'bg-purple-500/20 text-primary border-primary/40'
+                    : 'bg-background text-muted-foreground border hover:border-primary/20 hover:text-muted-foreground'
                 }`}
               >
                 {label}
@@ -283,7 +283,7 @@ function HungerAssessment({ answers, setAnswers }: { answers: number[]; setAnswe
 function DayCard({ p, isOpen, onToggle }: { p: DayProtocol; isOpen: boolean; onToggle: () => void }) {
   const diff = difficultyConfig[p.difficulty]
   return (
-    <Card className="bg-[#1a1d27] border-[#2a2d37] overflow-hidden transition-colors hover:border-purple-500/20">
+    <Card className="bg-card border overflow-hidden transition-colors hover:border-primary/20">
       {/* Header row — always visible */}
       <button
         type="button"
@@ -291,18 +291,18 @@ function DayCard({ p, isOpen, onToggle }: { p: DayProtocol; isOpen: boolean; onT
         className="w-full text-left px-6 py-4 flex items-center justify-between gap-3 cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <span className="text-white font-semibold text-sm shrink-0">Day {p.day}</span>
+          <span className="text-foreground font-semibold text-sm shrink-0">Day {p.day}</span>
           <Badge className={`${diff.bg} border text-[10px]`}>{diff.label}</Badge>
           {p.week === 1 ? (
-            <Badge className="bg-purple-500/15 text-purple-400 border-purple-500/20 border text-[10px]">Week 1 &middot; Foundation</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/20 border text-[10px]">Week 1 &middot; Foundation</Badge>
           ) : (
-            <Badge className="bg-indigo-500/15 text-indigo-400 border-indigo-500/20 border text-[10px]">Week 2 &middot; Challenge</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/20 border text-[10px]">Week 2 &middot; Challenge</Badge>
           )}
-          <span className="text-xs text-gray-500 truncate hidden sm:inline">
+          <span className="text-xs text-muted-foreground truncate hidden sm:inline">
             {p.layer1.slice(0, 50)}...
           </span>
         </div>
-        <div className="shrink-0 text-gray-500">
+        <div className="shrink-0 text-muted-foreground">
           {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </div>
       </button>
@@ -312,39 +312,39 @@ function DayCard({ p, isOpen, onToggle }: { p: DayProtocol; isOpen: boolean; onT
         <CardContent className="px-6 pb-5 pt-0 space-y-4">
           {/* Three defense layers */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg bg-[#0c0e14] border border-purple-500/10">
+            <div className="p-3 rounded-lg bg-background border border-primary/10">
               <div className="flex items-center gap-1.5 mb-1.5">
-                <Shield className="w-3.5 h-3.5 text-purple-400" />
-                <p className="text-[11px] font-semibold text-purple-400 uppercase tracking-wide">Layer 1: 5-Min Delay</p>
+                <Shield className="w-3.5 h-3.5 text-primary" />
+                <p className="text-[11px] font-semibold text-primary uppercase tracking-wide">Layer 1: 5-Min Delay</p>
               </div>
-              <p className="text-sm text-gray-300 leading-relaxed">{p.layer1}</p>
+              <p className="text-sm text-foreground leading-relaxed">{p.layer1}</p>
             </div>
-            <div className="p-3 rounded-lg bg-[#0c0e14] border border-blue-500/10">
+            <div className="p-3 rounded-lg bg-background border border-blue-500/10">
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                 <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-wide">Layer 2: Zero-Cal Suppress</p>
               </div>
-              <p className="text-sm text-gray-300 leading-relaxed">{p.layer2}</p>
+              <p className="text-sm text-foreground leading-relaxed">{p.layer2}</p>
             </div>
-            <div className="p-3 rounded-lg bg-[#0c0e14] border border-amber-500/10">
+            <div className="p-3 rounded-lg bg-background border border-amber-500/10">
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Target className="w-3.5 h-3.5 text-amber-400" />
                 <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-wide">Layer 3: Emergency (&lt;50 cal)</p>
               </div>
-              <p className="text-sm text-gray-300 leading-relaxed">{p.layer3}</p>
+              <p className="text-sm text-foreground leading-relaxed">{p.layer3}</p>
             </div>
           </div>
 
           {/* Reflection questions */}
-          <div className="p-3 rounded-lg bg-[#0c0e14] border border-indigo-500/10">
+          <div className="p-3 rounded-lg bg-background border border-primary/10">
             <div className="flex items-center gap-1.5 mb-2">
-              <Brain className="w-3.5 h-3.5 text-indigo-400" />
-              <p className="text-[11px] font-semibold text-indigo-400 uppercase tracking-wide">Self-Reflection Questions</p>
+              <Brain className="w-3.5 h-3.5 text-primary" />
+              <p className="text-[11px] font-semibold text-primary uppercase tracking-wide">Self-Reflection Questions</p>
             </div>
             <ol className="space-y-1">
               {p.questions.map((q, i) => (
-                <li key={i} className="text-sm text-gray-400 flex gap-2">
-                  <span className="text-indigo-500/70 font-medium shrink-0">{i + 1}.</span>
+                <li key={i} className="text-sm text-muted-foreground flex gap-2">
+                  <span className="text-primary/70 font-medium shrink-0">{i + 1}.</span>
                   <span>{q}</span>
                 </li>
               ))}
@@ -404,24 +404,24 @@ export default function NightHungerPage() {
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-3">
-            <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-              <Moon className="w-7 h-7 text-purple-400" />
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Moon className="w-7 h-7 text-primary" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-primary">
             Night Hunger Protocol
           </h1>
-          <p className="text-gray-400 text-sm">Module 3 &middot; 14-Day Craving Elimination Program</p>
+          <p className="text-muted-foreground text-sm">Module 3 &middot; 14-Day Craving Elimination Program</p>
         </div>
 
         {/* Form card */}
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Star className="w-4 h-4 text-purple-400" />
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <Star className="w-4 h-4 text-primary" />
               Personalize Your Protocol
             </CardTitle>
-            <p className="text-gray-500 text-xs mt-1">
+            <p className="text-muted-foreground text-xs mt-1">
               Answer a few questions so we can tailor your 14-night plan.
             </p>
           </CardHeader>
@@ -442,12 +442,12 @@ export default function NightHungerPage() {
 
             {/* Craving type */}
             <div className="space-y-1.5">
-              <Label className="text-gray-300 text-sm">Craving Type</Label>
+              <Label className="text-foreground text-sm">Craving Type</Label>
               <Select
                 value={form.cravingType}
                 onValueChange={(v) => { if (v) setForm(f => ({ ...f, cravingType: v as CravingType })) }}
               >
-                <SelectTrigger className="w-full bg-[#0c0e14] border-[#2a2d37] text-white">
+                <SelectTrigger className="w-full bg-background border text-foreground">
                   <SelectValue placeholder="Select your craving type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -461,11 +461,11 @@ export default function NightHungerPage() {
 
             {/* Trigger foods */}
             <div className="space-y-1.5">
-              <Label className="text-gray-300 text-sm">Trigger Foods</Label>
+              <Label className="text-foreground text-sm">Trigger Foods</Label>
               <Input
                 value={form.triggerFoods}
                 onChange={e => setForm(f => ({ ...f, triggerFoods: e.target.value }))}
-                className="bg-[#0c0e14] border-[#2a2d37] text-white"
+                className="bg-background border text-foreground"
                 placeholder="e.g. chocolate, chips, ice cream, cookies"
               />
             </div>
@@ -478,21 +478,21 @@ export default function NightHungerPage() {
 
             {/* Assessment result preview */}
             {form.hungerAnswers.every(a => a > 0) && (
-              <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/15">
+              <div className="p-3 rounded-lg bg-purple-500/5 border border-primary/15">
                 <div className="flex items-center gap-2 mb-1">
-                  <Zap className="w-3.5 h-3.5 text-purple-400" />
-                  <p className="text-xs font-semibold text-purple-400 uppercase tracking-wide">Assessment Result</p>
+                  <Zap className="w-3.5 h-3.5 text-primary" />
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wide">Assessment Result</p>
                 </div>
-                <p className="text-sm text-gray-300">
+                <p className="text-sm text-foreground">
                   {hungerVerdict}
                   {avgHunger >= 3.5 && (
-                    <span className="text-purple-300/70"> — your protocol will emphasize emotional regulation techniques.</span>
+                    <span className="text-primary/70"> — your protocol will emphasize emotional regulation techniques.</span>
                   )}
                   {avgHunger < 2.5 && (
-                    <span className="text-purple-300/70"> — your protocol will emphasize satiety strategies and meal timing.</span>
+                    <span className="text-primary/70"> — your protocol will emphasize satiety strategies and meal timing.</span>
                   )}
                   {avgHunger >= 2.5 && avgHunger < 3.5 && (
-                    <span className="text-purple-300/70"> — your protocol balances both physical and emotional strategies.</span>
+                    <span className="text-primary/70"> — your protocol balances both physical and emotional strategies.</span>
                   )}
                 </p>
               </div>
@@ -502,13 +502,13 @@ export default function NightHungerPage() {
             <Button
               onClick={() => setStarted(true)}
               disabled={!formValid}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed h-11 text-sm font-semibold"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed h-11 text-sm font-semibold"
             >
               <Moon className="w-4 h-4 mr-2" />
               Start 14-Day Protocol
             </Button>
             {!formValid && (
-              <p className="text-xs text-gray-500 text-center">Complete all fields to unlock your personalized protocol.</p>
+              <p className="text-xs text-muted-foreground text-center">Complete all fields to unlock your personalized protocol.</p>
             )}
           </CardContent>
         </Card>
@@ -521,36 +521,36 @@ export default function NightHungerPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-3">
-          <Moon className="w-7 h-7 text-purple-400" />
+        <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
+          <Moon className="w-7 h-7 text-primary" />
           Night Hunger Protocol
         </h1>
         <Button
           variant="outline"
           size="sm"
           onClick={() => { setStarted(false); setOpenDays(new Set()) }}
-          className="border-[#2a2d37] text-gray-400 hover:text-white hover:border-purple-500/30 text-xs"
+          className="border text-muted-foreground hover:text-foreground hover:border-primary/30 text-xs"
         >
           Edit Profile
         </Button>
       </div>
 
       {/* Summary strip */}
-      <Card className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border-purple-500/15">
+      <Card className="bg-gradient-to-r from-primary/10 to-primary/10 border-primary/15">
         <CardContent className="py-3 px-5 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs">
-          <span className="text-gray-400">Dinner: <span className="text-purple-300 font-medium">{form.dinnerTime}</span></span>
-          <span className="text-gray-400">Bed: <span className="text-indigo-300 font-medium">{form.bedtime}</span></span>
-          <span className="text-gray-400">Craving: <span className="text-purple-300 font-medium capitalize">{form.cravingType}</span></span>
-          <span className="text-gray-400">Type: <span className="text-indigo-300 font-medium">{hungerVerdict}</span></span>
+          <span className="text-muted-foreground">Dinner: <span className="text-primary font-medium">{form.dinnerTime}</span></span>
+          <span className="text-muted-foreground">Bed: <span className="text-primary font-medium">{form.bedtime}</span></span>
+          <span className="text-muted-foreground">Craving: <span className="text-primary font-medium capitalize">{form.cravingType}</span></span>
+          <span className="text-muted-foreground">Type: <span className="text-primary font-medium">{hungerVerdict}</span></span>
           {form.triggerFoods && (
-            <span className="text-gray-400">Triggers: <span className="text-purple-300 font-medium">{form.triggerFoods}</span></span>
+            <span className="text-muted-foreground">Triggers: <span className="text-primary font-medium">{form.triggerFoods}</span></span>
           )}
         </CardContent>
       </Card>
 
       {/* Week filter + expand controls */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-lg overflow-hidden border border-[#2a2d37]">
+        <div className="flex rounded-lg overflow-hidden border border">
           {(['all', 1, 2] as const).map(w => (
             <button
               key={w}
@@ -558,8 +558,8 @@ export default function NightHungerPage() {
               onClick={() => setWeekFilter(w)}
               className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                 weekFilter === w
-                  ? 'bg-purple-500/20 text-purple-300'
-                  : 'bg-[#1a1d27] text-gray-500 hover:text-gray-300'
+                  ? 'bg-purple-500/20 text-primary'
+                  : 'bg-card text-muted-foreground hover:text-foreground'
               }`}
             >
               {w === 'all' ? 'All 14 Days' : `Week ${w}`}
@@ -571,7 +571,7 @@ export default function NightHungerPage() {
             variant="ghost"
             size="sm"
             onClick={() => expandAll(filteredProtocol.map(p => p.day))}
-            className="text-gray-500 hover:text-purple-400 text-xs h-7 px-2"
+            className="text-muted-foreground hover:text-primary text-xs h-7 px-2"
           >
             Expand All
           </Button>
@@ -579,7 +579,7 @@ export default function NightHungerPage() {
             variant="ghost"
             size="sm"
             onClick={collapseAll}
-            className="text-gray-500 hover:text-purple-400 text-xs h-7 px-2"
+            className="text-muted-foreground hover:text-primary text-xs h-7 px-2"
           >
             Collapse All
           </Button>
@@ -588,14 +588,14 @@ export default function NightHungerPage() {
 
       {/* Week 1 summary card */}
       {(weekFilter === 'all' || weekFilter === 1) && (
-        <Card className="bg-[#1a1d27] border-purple-500/15">
+        <Card className="bg-card border-primary/15">
           <CardHeader className="py-3 px-5">
-            <CardTitle className="text-sm text-purple-300 flex items-center gap-2">
+            <CardTitle className="text-sm text-primary flex items-center gap-2">
               <Moon className="w-4 h-4" /> Week 1 &middot; Foundation Phase
             </CardTitle>
           </CardHeader>
           <CardContent className="px-5 pb-3">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               Build your defense system. Each night introduces a new delay technique, zero-calorie suppressant, and a micro-snack under 50 calories. Difficulty: Easy to Moderate.
             </p>
           </CardContent>
@@ -616,14 +616,14 @@ export default function NightHungerPage() {
 
       {/* Week 2 summary card (appears after days when showing all) */}
       {(weekFilter === 'all' || weekFilter === 2) && (
-        <Card className="bg-[#1a1d27] border-indigo-500/15">
+        <Card className="bg-card border-primary/15">
           <CardHeader className="py-3 px-5">
-            <CardTitle className="text-sm text-indigo-300 flex items-center gap-2">
+            <CardTitle className="text-sm text-primary flex items-center gap-2">
               <Zap className="w-4 h-4" /> Week 2 &middot; Challenge Phase
             </CardTitle>
           </CardHeader>
           <CardContent className="px-5 pb-3">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               Double down. Longer delays, combined suppression methods, and smaller emergency snacks. Difficulty: Hard to Intense. You are reprogramming your nighttime habits.
             </p>
           </CardContent>
@@ -631,11 +631,11 @@ export default function NightHungerPage() {
       )}
 
       {/* Completion card */}
-      <Card className="bg-gradient-to-br from-purple-500/10 via-indigo-500/5 to-transparent border-purple-500/20">
+      <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
         <CardContent className="py-6 text-center space-y-2">
-          <Moon className="w-8 h-8 text-purple-400 mx-auto" />
-          <p className="text-white font-semibold">14 Nights to Freedom</p>
-          <p className="text-xs text-gray-400 max-w-md mx-auto">
+          <Moon className="w-8 h-8 text-primary mx-auto" />
+          <p className="text-foreground font-semibold">14 Nights to Freedom</p>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
             Each night you resist builds neural pathways that make the next night easier. By Day 14, your nighttime eating habit will be fundamentally rewired.
           </p>
         </CardContent>

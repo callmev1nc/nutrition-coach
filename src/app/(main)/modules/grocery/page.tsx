@@ -42,12 +42,12 @@ const staticCategories = [
 ]
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-white/[0.06] ${className ?? ''}`} />
+  return <div className={`animate-pulse rounded-lg bg-muted ${className ?? ''}`} />
 }
 
 function CategorySkeleton() {
   return (
-    <Card className="bg-[#1a1d27] border-[#2a2d37]">
+    <Card className="bg-card border">
       <CardHeader className="py-3">
         <Skeleton className="h-4 w-28" />
       </CardHeader>
@@ -133,30 +133,30 @@ export default function GroceryPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent flex items-center gap-3">
-        <ShoppingCart className="w-7 h-7 text-emerald-400" />Grocery Budget Planner
+      <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
+        <ShoppingCart className="w-7 h-7 text-primary" />Grocery Budget Planner
       </h1>
 
       {!started ? (
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
-          <CardHeader><CardTitle className="text-white">7-Day High-Protein Shopping Plan</CardTitle></CardHeader>
+        <Card className="bg-card border">
+          <CardHeader><CardTitle className="text-foreground">7-Day High-Protein Shopping Plan</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-gray-300">Weekly Budget ($)</Label>
-                <Input type="number" value={budget} onChange={e => setBudget(e.target.value)} className="bg-[#0c0e14] border-[#2a2d37] text-white" />
+                <Label className="text-foreground">Weekly Budget ($)</Label>
+                <Input type="number" value={budget} onChange={e => setBudget(e.target.value)} className="bg-background border text-foreground" />
               </div>
               <div>
-                <Label className="text-gray-300">People</Label>
+                <Label className="text-foreground">People</Label>
                 <Select value={people} onValueChange={(v) => v && setPeople(v)}>
-                  <SelectTrigger className="bg-[#0c0e14] border-[#2a2d37] text-white"><SelectValue /></SelectTrigger>
-                  <SelectContent className="bg-[#1a1d27] border-[#2a2d37]">
+                  <SelectTrigger className="bg-background border text-foreground"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-card border">
                     {[1, 2, 3, 4, 5, 6].map(n => <SelectItem key={n} value={String(n)}>{n} {n === 1 ? 'person' : 'people'}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <Button onClick={() => { setStarted(true); setUseAi(false) }} className="w-full bg-gradient-to-r from-emerald-500 to-green-600 text-white">
+            <Button onClick={() => { setStarted(true); setUseAi(false) }} className="w-full bg-primary text-primary-foreground">
               Show Shopping List
             </Button>
           </CardContent>
@@ -164,25 +164,25 @@ export default function GroceryPage() {
       ) : (
         <>
           {/* Cost Summary */}
-          <Card className="bg-[#1a1d27] border-[#2a2d37]">
+          <Card className="bg-card border">
             <CardContent className="pt-4 space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-400">Total Estimated Cost</span>
+                <span className="text-muted-foreground">Total Estimated Cost</span>
                 <span className={`text-xl font-bold ${currentTotal <= budgetNum ? 'text-green-400' : 'text-red-400'}`}>
                   ${currentTotal.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Budget</span>
-                <span className="text-gray-300">${budgetNum.toFixed(2)}</span>
+                <span className="text-muted-foreground">Budget</span>
+                <span className="text-foreground">${budgetNum.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Remaining</span>
-                <span className={budgetNum - currentTotal >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+                <span className="text-muted-foreground">Remaining</span>
+                <span className={budgetNum - currentTotal >= 0 ? 'text-primary' : 'text-red-400'}>
                   ${(budgetNum - currentTotal).toFixed(2)}
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all duration-500"
                   style={{ width: `${Math.min(100, (currentTotal / budgetNum) * 100)}%` }}
@@ -193,15 +193,15 @@ export default function GroceryPage() {
 
           {/* AI Generate Button */}
           {!useAi && !aiList && (
-            <Card className="bg-gradient-to-br from-emerald-950/30 to-[#1a1d27] border-emerald-500/20">
+            <Card className="bg-gradient-to-br from-primary/5 to-card border-primary/20">
               <CardContent className="pt-4 text-center space-y-3">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Want a personalized list based on your meal plan?
                 </p>
                 <Button
                   onClick={generateAiList}
                   disabled={generating}
-                  className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                  className="bg-primary text-primary-foreground"
                 >
                   {generating ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating AI List...</>
@@ -225,14 +225,14 @@ export default function GroceryPage() {
           {aiList && useAi && (
             <>
               <div className="flex items-center justify-between">
-                <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/20">
+                <Badge className="bg-primary/20 text-primary border-primary/20">
                   {aiList.withinBudget ? 'Within Budget' : 'Over Budget'}
                 </Badge>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setUseAi(false)}
-                  className="border-[#2a2d37] text-gray-400 hover:text-white text-xs"
+                  className="border text-muted-foreground hover:text-foreground text-xs"
                 >
                   Show Static List
                 </Button>
@@ -240,11 +240,11 @@ export default function GroceryPage() {
               {aiList.categories.map((cat, ci) => {
                 const checked = cat.items.every((_, ii) => checklist.has(`ai-${ci}-${ii}`))
                 return (
-                  <Card key={ci} className={`bg-[#1a1d27] border-[#2a2d37] ${checked ? 'ring-1 ring-green-500/30' : ''}`}>
+                  <Card key={ci} className={`bg-card border ${checked ? 'ring-1 ring-green-500/30' : ''}`}>
                     <CardHeader className="py-3">
-                      <CardTitle className="text-sm text-emerald-400 flex items-center gap-2 capitalize">
+                      <CardTitle className="text-sm text-primary flex items-center gap-2 capitalize">
                         {cat.name}
-                        <Badge className="bg-emerald-500/20 text-emerald-400">${cat.totalEstimatedCost.toFixed(2)}</Badge>
+                        <Badge className="bg-primary/20 text-primary">${cat.totalEstimatedCost.toFixed(2)}</Badge>
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-1">
@@ -255,7 +255,7 @@ export default function GroceryPage() {
                           <div
                             key={ii}
                             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                              isChecked ? 'bg-green-500/5 line-through opacity-60' : 'hover:bg-[#0c0e14]'
+                              isChecked ? 'bg-green-500/5 line-through opacity-60' : 'hover:bg-background'
                             }`}
                             onClick={() => toggleCheck(key)}
                           >
@@ -264,9 +264,9 @@ export default function GroceryPage() {
                             ) : (
                               <Circle className="w-4 h-4 text-gray-600 shrink-0" />
                             )}
-                            <span className={`flex-1 text-sm ${isChecked ? 'text-gray-500' : 'text-gray-300'}`}>{item.name}</span>
-                            <span className="text-xs text-gray-500">{item.quantity}</span>
-                            <span className="text-xs text-emerald-400">${item.estimatedCost.toFixed(2)}</span>
+                            <span className={`flex-1 text-sm ${isChecked ? 'text-muted-foreground' : 'text-foreground'}`}>{item.name}</span>
+                            <span className="text-xs text-muted-foreground">{item.quantity}</span>
+                            <span className="text-xs text-primary">${item.estimatedCost.toFixed(2)}</span>
                           </div>
                         )
                       })}
@@ -283,11 +283,11 @@ export default function GroceryPage() {
               {staticCategories.map(cat => {
                 const checked = cat.items.every((_, ii) => checklist.has(`static-${cat.name}-${ii}`))
                 return (
-                  <Card key={cat.name} className={`bg-[#1a1d27] border-[#2a2d37] ${checked ? 'ring-1 ring-green-500/30' : ''}`}>
+                  <Card key={cat.name} className={`bg-card border ${checked ? 'ring-1 ring-green-500/30' : ''}`}>
                     <CardHeader className="py-3">
-                      <CardTitle className="text-sm text-emerald-400 flex items-center gap-2">
+                      <CardTitle className="text-sm text-primary flex items-center gap-2">
                         {cat.name}
-                        <Badge className="bg-emerald-500/20 text-emerald-400">
+                        <Badge className="bg-primary/20 text-primary">
                           ${cat.items.reduce((s, i) => s + i.cost, 0).toFixed(2)}
                         </Badge>
                       </CardTitle>
@@ -300,7 +300,7 @@ export default function GroceryPage() {
                           <div
                             key={i}
                             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                              isChecked ? 'bg-green-500/5 line-through opacity-60' : 'hover:bg-[#0c0e14]'
+                              isChecked ? 'bg-green-500/5 line-through opacity-60' : 'hover:bg-background'
                             }`}
                             onClick={() => toggleCheck(key)}
                           >
@@ -309,9 +309,9 @@ export default function GroceryPage() {
                             ) : (
                               <Circle className="w-4 h-4 text-gray-600 shrink-0" />
                             )}
-                            <span className={`flex-1 text-sm ${isChecked ? 'text-gray-500' : 'text-gray-300'}`}>{item.item}</span>
-                            <span className="text-xs text-gray-500">{item.qty}</span>
-                            <span className="text-xs text-emerald-400">${item.cost.toFixed(2)}</span>
+                            <span className={`flex-1 text-sm ${isChecked ? 'text-muted-foreground' : 'text-foreground'}`}>{item.item}</span>
+                            <span className="text-xs text-muted-foreground">{item.qty}</span>
+                            <span className="text-xs text-primary">${item.cost.toFixed(2)}</span>
                           </div>
                         )
                       })}
@@ -320,9 +320,9 @@ export default function GroceryPage() {
                 )
               })}
 
-              <div className="flex items-center justify-center gap-2 p-3 bg-[#0c0e14] rounded-lg">
-                <DollarSign className="w-4 h-4 text-emerald-400" />
-                <span className="text-sm text-gray-400">Cost per Meal: <span className="text-white font-medium">${(totalCost / 21).toFixed(2)}</span></span>
+              <div className="flex items-center justify-center gap-2 p-3 bg-background rounded-lg">
+                <DollarSign className="w-4 h-4 text-primary" />
+                <span className="text-sm text-muted-foreground">Cost per Meal: <span className="text-foreground font-medium">${(totalCost / 21).toFixed(2)}</span></span>
               </div>
 
               {/* Switch to AI */}
@@ -330,7 +330,7 @@ export default function GroceryPage() {
                 <Button
                   onClick={() => setUseAi(true)}
                   variant="outline"
-                  className="w-full border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                  className="w-full border-primary/30 text-primary hover:bg-primary/10"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   Switch to AI-Generated List
@@ -340,14 +340,14 @@ export default function GroceryPage() {
           )}
 
           {/* Checklist progress */}
-          <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <span>{checklist.size} items checked off</span>
             {checklist.size > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setChecklist(new Set())}
-                className="text-gray-500 hover:text-white text-xs h-6 px-2"
+                className="text-muted-foreground hover:text-foreground text-xs h-6 px-2"
               >
                 Reset
               </Button>

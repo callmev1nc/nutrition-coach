@@ -90,7 +90,7 @@ export default function CravingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent flex items-center gap-3">
+      <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
         <Cookie className="w-7 h-7 text-orange-400" />Cravings Management
       </h1>
 
@@ -101,22 +101,22 @@ export default function CravingsPage() {
             <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-medium text-red-300">Emergency Craving Protocol</p>
-              <p className="text-xs text-gray-400">{getPersonalizedEmergency()}</p>
+              <p className="text-xs text-muted-foreground">{getPersonalizedEmergency()}</p>
             </div>
           </CardContent>
         </Card>
       )}
 
       {!started ? (
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
-          <CardHeader><CardTitle className="text-white">7-Day Tactical Craving Control</CardTitle></CardHeader>
+        <Card className="bg-card border">
+          <CardHeader><CardTitle className="text-foreground">7-Day Tactical Craving Control</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             {/* Profile-based personalization */}
             {profile && (
-              <div className="p-3 rounded-lg bg-[#0c0e14] border border-[#2a2d37]">
+              <div className="p-3 rounded-lg bg-background border border">
                 <div className="flex items-center gap-2 mb-2">
                   <User className="w-4 h-4 text-orange-400" />
-                  <span className="text-xs text-gray-400">Your Profile</span>
+                  <span className="text-xs text-muted-foreground">Your Profile</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {profile.food_preferences && (
@@ -129,10 +129,10 @@ export default function CravingsPage() {
               </div>
             )}
             <div>
-              <Label className="text-gray-300">Favorite Junk Food</Label>
-              <Input value={junkFood} onChange={e => setJunkFood(e.target.value)} className="bg-[#0c0e14] border-[#2a2d37] text-white" placeholder="e.g. chocolate, chips, ice cream" />
+              <Label className="text-foreground">Favorite Junk Food</Label>
+              <Input value={junkFood} onChange={e => setJunkFood(e.target.value)} className="bg-background border text-foreground" placeholder="e.g. chocolate, chips, ice cream" />
             </div>
-            <Button onClick={() => setStarted(true)} className="w-full bg-gradient-to-r from-orange-500 to-amber-600 text-white">
+            <Button onClick={() => setStarted(true)} className="w-full bg-primary text-primary-foreground">
               Start 7-Day Plan
             </Button>
           </CardContent>
@@ -140,13 +140,13 @@ export default function CravingsPage() {
       ) : (
         <div className="space-y-4">
           {/* Progress Bar */}
-          <Card className="bg-[#1a1d27] border-[#2a2d37]">
+          <Card className="bg-card border">
             <CardContent className="pt-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400">Progress</span>
-                <span className="text-sm text-gray-400">{doneCount}/{totalActions} actions</span>
+                <span className="text-sm text-muted-foreground">Progress</span>
+                <span className="text-sm text-muted-foreground">{doneCount}/{totalActions} actions</span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-500"
                   style={{ width: `${progressPct}%` }}
@@ -157,10 +157,10 @@ export default function CravingsPage() {
 
           {/* Expand/Collapse Controls */}
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={expandAll} className="text-gray-500 hover:text-orange-400 text-xs h-7 px-2">
+            <Button variant="ghost" size="sm" onClick={expandAll} className="text-muted-foreground hover:text-orange-400 text-xs h-7 px-2">
               Expand All
             </Button>
-            <Button variant="ghost" size="sm" onClick={collapseAll} className="text-gray-500 hover:text-orange-400 text-xs h-7 px-2">
+            <Button variant="ghost" size="sm" onClick={collapseAll} className="text-muted-foreground hover:text-orange-400 text-xs h-7 px-2">
               Collapse All
             </Button>
           </div>
@@ -169,18 +169,18 @@ export default function CravingsPage() {
             const isOpen = openDays.has(d.day)
             const allActionsDone = d.actions.every((_, i) => completedActions.has(`${d.day}-${i}`))
             return (
-              <Card key={d.day} className={`bg-[#1a1d27] border-[#2a2d37] overflow-hidden transition-colors hover:border-orange-500/20 ${allActionsDone ? 'ring-1 ring-green-500/30' : ''}`}>
+              <Card key={d.day} className={`bg-card border overflow-hidden transition-colors hover:border-orange-500/20 ${allActionsDone ? 'ring-1 ring-green-500/30' : ''}`}>
                 <button
                   type="button"
                   onClick={() => toggleDay(d.day)}
                   className="w-full text-left px-6 py-4 flex items-center justify-between gap-3 cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-white font-semibold text-sm shrink-0">Day {d.day}</span>
+                    <span className="text-foreground font-semibold text-sm shrink-0">Day {d.day}</span>
                     <Badge className={d.color}>{d.theme}</Badge>
                     {allActionsDone && <CheckCircle2 className="w-4 h-4 text-green-400" />}
                   </div>
-                  <div className="shrink-0 text-gray-500">
+                  <div className="shrink-0 text-muted-foreground">
                     {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </div>
                 </button>
@@ -196,7 +196,7 @@ export default function CravingsPage() {
                           <div
                             key={i}
                             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                              done ? 'bg-green-500/5 line-through opacity-60' : 'hover:bg-[#0c0e14]'
+                              done ? 'bg-green-500/5 line-through opacity-60' : 'hover:bg-background'
                             }`}
                             onClick={() => toggleAction(key)}
                           >
@@ -205,7 +205,7 @@ export default function CravingsPage() {
                             ) : (
                               <Circle className="w-4 h-4 text-gray-600 shrink-0" />
                             )}
-                            <span className={`text-sm ${done ? 'text-gray-500' : 'text-gray-300'}'}`}>{a}</span>
+                            <span className={`text-sm ${done ? 'text-muted-foreground' : 'text-foreground'}'}`}>{a}</span>
                           </div>
                         )
                       })}
@@ -213,17 +213,17 @@ export default function CravingsPage() {
 
                     {/* Strategy Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                      <div className="p-3 bg-[#0c0e14] rounded text-xs">
+                      <div className="p-3 bg-background rounded text-xs">
                         <span className="text-green-400 font-medium">Replace: </span>
-                        <span className="text-gray-300">{d.replacement}</span>
+                        <span className="text-foreground">{d.replacement}</span>
                       </div>
-                      <div className="p-3 bg-[#0c0e14] rounded text-xs">
+                      <div className="p-3 bg-background rounded text-xs">
                         <span className="text-blue-400 font-medium">Environment: </span>
-                        <span className="text-gray-300">{d.envTip}</span>
+                        <span className="text-foreground">{d.envTip}</span>
                       </div>
-                      <div className="p-3 bg-[#0c0e14] rounded text-xs">
+                      <div className="p-3 bg-background rounded text-xs">
                         <span className="text-red-400 font-medium">Emergency: </span>
-                        <span className="text-gray-300">{d.emergency}</span>
+                        <span className="text-foreground">{d.emergency}</span>
                       </div>
                     </div>
                   </CardContent>

@@ -45,10 +45,10 @@ export default function SignupPage() {
   }
 
   return (
-    <Card className="bg-[#1a1d27] border-[#2a2d37] shadow-2xl shadow-indigo-500/5">
+    <Card className="bg-card border shadow-sm">
       <CardHeader className="text-center">
-        <CardTitle className="text-xl text-white">Start your journey</CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardTitle className="text-xl text-foreground">Start your journey</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Create a free account to get personalized coaching
         </CardDescription>
       </CardHeader>
@@ -61,7 +61,7 @@ export default function SignupPage() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-300">
+            <Label htmlFor="email" className="text-foreground">
               Email
             </Label>
             <Input
@@ -69,14 +69,14 @@ export default function SignupPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-[#0c0e14] border-[#2a2d37] text-white placeholder:text-gray-500 focus-visible:border-indigo-500 focus-visible:ring-indigo-500/30"
+              className="bg-background border text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/30"
               placeholder="your@email.com"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-gray-300">
+            <Label htmlFor="password" className="text-foreground">
               Password
             </Label>
             <Input
@@ -84,14 +84,14 @@ export default function SignupPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-[#0c0e14] border-[#2a2d37] text-white placeholder:text-gray-500 focus-visible:border-indigo-500 focus-visible:ring-indigo-500/30"
+              className="bg-background border text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/30"
               placeholder="Min 6 characters"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-gray-300">
+            <Label htmlFor="confirmPassword" className="text-foreground">
               Confirm Password
             </Label>
             <Input
@@ -99,7 +99,7 @@ export default function SignupPage() {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="bg-[#0c0e14] border-[#2a2d37] text-white placeholder:text-gray-500 focus-visible:border-indigo-500 focus-visible:ring-indigo-500/30"
+              className="bg-background border text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/30"
               placeholder="Repeat your password"
               required
             />
@@ -108,16 +108,16 @@ export default function SignupPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium shadow-lg shadow-indigo-500/25 transition-all duration-200"
+            className="w-full bg-primary text-primary-foreground font-medium shadow-sm transition-all duration-200"
           >
             {loading ? 'Creating account...' : 'Create Account'}
           </Button>
 
-          <p className="text-center text-sm text-gray-400">
+          <p className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link
               href="/login"
-              className="text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="text-primary hover:text-primary/80 transition-colors"
             >
               Sign in
             </Link>

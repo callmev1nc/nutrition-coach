@@ -20,7 +20,7 @@ const categories = [
 ]
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-white/[0.06] ${className ?? ''}`} />
+  return <div className={`animate-pulse rounded-lg bg-muted ${className ?? ''}`} />
 }
 
 export default function BodyFatPage() {
@@ -123,7 +123,7 @@ export default function BodyFatPage() {
     : 0
 
   const TrendIcon = trendDirection < -0.1 ? TrendingDown : trendDirection > 0.1 ? TrendingUp : Minus
-  const trendColor = trendDirection < -0.1 ? 'text-green-400' : trendDirection > 0.1 ? 'text-red-400' : 'text-gray-400'
+  const trendColor = trendDirection < -0.1 ? 'text-green-400' : trendDirection > 0.1 ? 'text-red-400' : 'text-muted-foreground'
   const trendLabel = trendDirection < -0.1
     ? `${Math.abs(trendDirection).toFixed(1)}% down`
     : trendDirection > 0.1
@@ -141,16 +141,16 @@ export default function BodyFatPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent flex items-center gap-3">
+      <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
         <Ruler className="w-7 h-7 text-cyan-400" />Body Fat Estimator
       </h1>
-      <p className="text-gray-400 text-sm">US Navy Method &middot; Using weight: <span className="text-white font-medium">{actualWeight > 0 ? `${actualWeight.toFixed(1)} kg` : 'No weight set'}</span></p>
+      <p className="text-muted-foreground text-sm">US Navy Method &middot; Using weight: <span className="text-foreground font-medium">{actualWeight > 0 ? `${actualWeight.toFixed(1)} kg` : 'No weight set'}</span></p>
 
       {/* History Chart */}
       {measurements.length > 1 && (
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-400 flex items-center gap-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
               Body Fat % Over Time
               <span className={`text-xs flex items-center gap-1 ${trendColor}`}>
                 <TrendIcon className="w-3 h-3" />
@@ -165,14 +165,14 @@ export default function BodyFatPage() {
                 <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#6b7280" fontSize={12} domain={['dataMin - 2', 'dataMax + 2']} tickLine={false} axisLine={false} width={40} />
                 <Tooltip
-                  contentStyle={{ background: '#1a1d27', border: '1px solid #2a2d37', borderRadius: '8px', color: '#e0e0e0', fontSize: '13px' }}
+                  contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#1A1A2E', fontSize: '13px' }}
                   labelStyle={{ color: '#9ca3af' }}
                   formatter={(value: unknown) => [`${value}%`, 'Body Fat']}
                 />
-                <Line type="monotone" dataKey="bf" stroke="#22d3ee" strokeWidth={2} dot={{ r: 4, fill: '#22d3ee', stroke: '#1a1d27', strokeWidth: 2 }} />
+                <Line type="monotone" dataKey="bf" stroke="#22d3ee" strokeWidth={2} dot={{ r: 4, fill: '#22d3ee', stroke: '#FFFFFF', strokeWidth: 2 }} />
               </LineChart>
             </ResponsiveContainer>
-            <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+            <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
               <span>{measurements.length > 0 ? `${measurements[0].date.slice(0, 10)}` : ''}</span>
               <span>{measurements.length > 0 ? `${measurements[measurements.length - 1].date.slice(0, 10)}` : ''}</span>
             </div>
@@ -182,58 +182,58 @@ export default function BodyFatPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Form */}
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
-          <CardHeader><CardTitle className="text-white">Measurements</CardTitle></CardHeader>
+        <Card className="bg-card border">
+          <CardHeader><CardTitle className="text-foreground">Measurements</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label className="text-gray-300">Gender</Label>
+              <Label className="text-foreground">Gender</Label>
               <Select value={gender} onValueChange={v => v && setGender(v as 'male' | 'female')}>
-                <SelectTrigger className="bg-[#0c0e14] border-[#2a2d37] text-white"><SelectValue /></SelectTrigger>
-                <SelectContent className="bg-[#1a1d27] border-[#2a2d37]">
+                <SelectTrigger className="bg-background border text-foreground"><SelectValue /></SelectTrigger>
+                <SelectContent className="bg-card border">
                   <SelectItem value="male">Male</SelectItem>
                   <SelectItem value="female">Female</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label className="text-gray-300">Height (cm)</Label><Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="bg-[#0c0e14] border-[#2a2d37] text-white" placeholder="175" /></div>
-              <div><Label className="text-gray-300">Waist (cm)</Label><Input type="number" value={waist} onChange={e => setWaist(e.target.value)} className="bg-[#0c0e14] border-[#2a2d37] text-white" placeholder="85" /></div>
+              <div><Label className="text-foreground">Height (cm)</Label><Input type="number" value={height} onChange={e => setHeight(e.target.value)} className="bg-background border text-foreground" placeholder="175" /></div>
+              <div><Label className="text-foreground">Waist (cm)</Label><Input type="number" value={waist} onChange={e => setWaist(e.target.value)} className="bg-background border text-foreground" placeholder="85" /></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label className="text-gray-300">Neck (cm)</Label><Input type="number" value={neck} onChange={e => setNeck(e.target.value)} className="bg-[#0c0e14] border-[#2a2d37] text-white" placeholder="38" /></div>
-              {gender === 'female' && <div><Label className="text-gray-300">Hip (cm)</Label><Input type="number" value={hip} onChange={e => setHip(e.target.value)} className="bg-[#0c0e14] border-[#2a2d37] text-white" placeholder="95" /></div>}
+              <div><Label className="text-foreground">Neck (cm)</Label><Input type="number" value={neck} onChange={e => setNeck(e.target.value)} className="bg-background border text-foreground" placeholder="38" /></div>
+              {gender === 'female' && <div><Label className="text-foreground">Hip (cm)</Label><Input type="number" value={hip} onChange={e => setHip(e.target.value)} className="bg-background border text-foreground" placeholder="95" /></div>}
             </div>
-            <Button onClick={calculate} className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white">Calculate</Button>
+            <Button onClick={calculate} className="w-full bg-primary text-primary-foreground">Calculate</Button>
           </CardContent>
         </Card>
 
         {bf !== null && (
           <div className="space-y-4">
-            <Card className="bg-gradient-to-br from-cyan-950/50 to-[#1a1d27] border-cyan-500/20">
+            <Card className="bg-gradient-to-br from-primary/5 to-card border-primary/20">
               <CardContent className="pt-6 text-center">
-                <p className="text-6xl font-bold text-white">{bf}<span className="text-2xl text-cyan-400">%</span></p>
+                <p className="text-6xl font-bold text-foreground">{bf}<span className="text-2xl text-cyan-400">%</span></p>
                 {cat && <p className={`mt-2 text-lg font-medium ${cat.color}`}>{cat.label}</p>}
-                <div className="mt-4 h-4 rounded-full bg-[#0c0e14] flex overflow-hidden">
+                <div className="mt-4 h-4 rounded-full bg-background flex overflow-hidden">
                   <div className="bg-cyan-500" style={{ width: `${100 - bf}%` }} /><div className="bg-amber-500" style={{ width: `${bf}%` }} />
                 </div>
                 <div className="flex justify-between text-xs mt-1"><span className="text-cyan-400">Lean Mass</span><span className="text-amber-400">Fat Mass</span></div>
               </CardContent>
             </Card>
-            <Card className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card className="bg-card border">
               <CardContent className="pt-4 grid grid-cols-2 gap-4">
-                <div className="text-center"><p className="text-xs text-gray-500">Lean Mass</p><p className="text-xl font-bold text-cyan-400">{leanMass} kg</p></div>
-                <div className="text-center"><p className="text-xs text-gray-500">Fat Mass</p><p className="text-xl font-bold text-amber-400">{fatMass} kg</p></div>
+                <div className="text-center"><p className="text-xs text-muted-foreground">Lean Mass</p><p className="text-xl font-bold text-cyan-400">{leanMass} kg</p></div>
+                <div className="text-center"><p className="text-xs text-muted-foreground">Fat Mass</p><p className="text-xl font-bold text-amber-400">{fatMass} kg</p></div>
               </CardContent>
             </Card>
-            <Card className="bg-[#1a1d27] border-[#2a2d37]">
-              <CardHeader className="py-3"><CardTitle className="text-sm text-gray-400">Categories ({gender})</CardTitle></CardHeader>
+            <Card className="bg-card border">
+              <CardHeader className="py-3"><CardTitle className="text-sm text-muted-foreground">Categories ({gender})</CardTitle></CardHeader>
               <CardContent>
                 <table className="w-full text-sm">
                   <tbody>
                     {categories.map(c => (
-                      <tr key={c.label} className={`border-b border-[#2a2d37]/50 ${cat?.label === c.label ? 'bg-white/5' : ''}`}>
+                      <tr key={c.label} className={`border-b border/50 ${cat?.label === c.label ? 'bg-white/5' : ''}`}>
                         <td className={`py-2 ${c.color}`}>{c.label}</td>
-                        <td className="py-2 text-gray-300 text-right">{gender === 'male' ? c.male : c.female}</td>
+                        <td className="py-2 text-foreground text-right">{gender === 'male' ? c.male : c.female}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -243,7 +243,7 @@ export default function BodyFatPage() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+              className="w-full bg-cyan-600 hover:bg-cyan-700 text-foreground"
             >
               {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Measurement</>}
             </Button>

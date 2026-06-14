@@ -68,7 +68,7 @@ const qualityTips: Record<string, { title: string; tips: string[] }> = {
 }
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-white/[0.06] ${className ?? ''}`} />
+  return <div className={`animate-pulse rounded-lg bg-muted ${className ?? ''}`} />
 }
 
 export default function SleepPage() {
@@ -159,26 +159,26 @@ export default function SleepPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-3">
+      <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
         <BedDouble className="w-7 h-7 text-blue-400" />Sleep & Fat Loss
       </h1>
 
       {!started ? (
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
-          <CardHeader><CardTitle className="text-white">Sleep is the #1 Underrated Fat Loss Factor</CardTitle></CardHeader>
+        <Card className="bg-card border">
+          <CardHeader><CardTitle className="text-foreground">Sleep is the #1 Underrated Fat Loss Factor</CardTitle></CardHeader>
           <CardContent>
-            <p className="text-gray-400 mb-4">Poor sleep increases hunger hormones by 28% and drops fullness signals by 18%.</p>
+            <p className="text-muted-foreground mb-4">Poor sleep increases hunger hormones by 28% and drops fullness signals by 18%.</p>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="p-3 rounded-lg bg-[#0c0e14]">
-                <p className="text-xs text-gray-500">Your Avg Sleep</p>
+              <div className="p-3 rounded-lg bg-background">
+                <p className="text-xs text-muted-foreground">Your Avg Sleep</p>
                 <p className="text-xl font-bold text-blue-400">{avgSleep > 0 ? `${avgSleep.toFixed(1)} h` : 'No data'}</p>
               </div>
-              <div className="p-3 rounded-lg bg-[#0c0e14]">
-                <p className="text-xs text-gray-500">Sleep Quality</p>
+              <div className="p-3 rounded-lg bg-background">
+                <p className="text-xs text-muted-foreground">Sleep Quality</p>
                 <p className="text-xl font-bold text-purple-400 capitalize">{sleepQuality}</p>
               </div>
             </div>
-            <Button onClick={() => setStarted(true)} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+            <Button onClick={() => setStarted(true)} className="w-full bg-primary text-primary-foreground">
               Show My Sleep Protocol
             </Button>
           </CardContent>
@@ -187,9 +187,9 @@ export default function SleepPage() {
         <>
           {/* 7-Day Trend Chart */}
           {chartData.length > 1 && (
-            <Card className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card className="bg-card border">
               <CardHeader>
-                <CardTitle className="text-sm text-gray-400 flex items-center gap-2">
+                <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-blue-400" />
                   7-Day Sleep Trend
                 </CardTitle>
@@ -207,14 +207,14 @@ export default function SleepPage() {
                     <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
                     <YAxis stroke="#6b7280" fontSize={12} domain={[0, 12]} tickLine={false} axisLine={false} width={30} />
                     <Tooltip
-                      contentStyle={{ background: '#1a1d27', border: '1px solid #2a2d37', borderRadius: '8px', color: '#e0e0e0', fontSize: '13px' }}
+                      contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#1A1A2E', fontSize: '13px' }}
                       labelStyle={{ color: '#9ca3af' }}
                       formatter={(value: unknown) => [`${value} hrs`, 'Sleep']}
                     />
-                    <Area type="monotone" dataKey="sleep" stroke="#818cf8" strokeWidth={2.5} fill="url(#sleepGradient)" dot={{ r: 4, fill: '#818cf8', stroke: '#1a1d27', strokeWidth: 2 }} />
+                    <Area type="monotone" dataKey="sleep" stroke="#818cf8" strokeWidth={2.5} fill="url(#sleepGradient)" dot={{ r: 4, fill: '#818cf8', stroke: '#FFFFFF', strokeWidth: 2 }} />
                   </AreaChart>
                 </ResponsiveContainer>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-muted-foreground mt-2">
                   7-day average: <span className="text-blue-400 font-medium">{last7Avg}h</span> &middot; Target: 8h
                 </p>
               </CardContent>
@@ -222,9 +222,9 @@ export default function SleepPage() {
           )}
 
           {/* Evening Wind-Down Schedule */}
-          <Card className="bg-[#1a1d27] border-[#2a2d37]">
+          <Card className="bg-card border">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Clock className="w-4 h-4 text-blue-400" />
                 Evening Wind-Down Schedule
                 <Badge className="bg-blue-500/20 text-blue-400 text-[9px] ml-auto">Personalized</Badge>
@@ -234,10 +234,10 @@ export default function SleepPage() {
               <table className="w-full text-sm">
                 <tbody>
                   {personalizedSchedule.map((s, i) => (
-                    <tr key={i} className="border-b border-[#2a2d37]">
+                    <tr key={i} className="border-b border">
                       <td className="py-2 text-blue-400 font-medium w-24">{s.time}</td>
-                      <td className="py-2 text-gray-300">{s.activity}</td>
-                      <td className="py-2 text-gray-500 text-right">{s.dur}</td>
+                      <td className="py-2 text-foreground">{s.activity}</td>
+                      <td className="py-2 text-muted-foreground text-right">{s.dur}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -246,9 +246,9 @@ export default function SleepPage() {
           </Card>
 
           {/* Personalized Tips */}
-          <Card className="bg-gradient-to-br from-blue-950/30 to-[#1a1d27] border-blue-500/20">
+          <Card className="bg-gradient-to-br from-primary/5 to-card border-primary/20">
             <CardHeader>
-              <CardTitle className="text-sm text-blue-300 flex items-center gap-2">
+              <CardTitle className="text-sm text-primary flex items-center gap-2">
                 <Info className="w-4 h-4" />
                 {tips.title}
               </CardTitle>
@@ -256,7 +256,7 @@ export default function SleepPage() {
             <CardContent>
               <ul className="space-y-2">
                 {tips.tips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
                     <span className="text-blue-400 mt-0.5">•</span>
                     {tip}
                   </li>
@@ -268,17 +268,17 @@ export default function SleepPage() {
           {/* Hormones */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {hormones.map(h => (
-              <Card key={h.name} className="bg-[#1a1d27] border-[#2a2d37]">
-                <CardHeader><CardTitle className={`text-lg ${h.color}`}>{h.name}</CardTitle><p className="text-xs text-gray-500">{h.aka}</p></CardHeader>
-                <CardContent><p className="text-sm text-gray-300">{h.desc}</p></CardContent>
+              <Card key={h.name} className="bg-card border">
+                <CardHeader><CardTitle className={`text-lg ${h.color}`}>{h.name}</CardTitle><p className="text-xs text-muted-foreground">{h.aka}</p></CardHeader>
+                <CardContent><p className="text-sm text-foreground">{h.desc}</p></CardContent>
               </Card>
             ))}
           </div>
 
           {/* Sleep Quality Metrics */}
-          <Card className="bg-[#1a1d27] border-[#2a2d37]">
+          <Card className="bg-card border">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Moon className="w-4 h-4 text-purple-400" />
                 Sleep Quality Metrics
               </CardTitle>
@@ -293,10 +293,10 @@ export default function SleepPage() {
               ].map(([l, v]) => (
                 <div key={String(l)}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-300">{String(l)}</span>
-                    <span className="text-gray-400">{v}%</span>
+                    <span className="text-foreground">{String(l)}</span>
+                    <span className="text-muted-foreground">{v}%</span>
                   </div>
-                  <Progress value={v as number} className="h-2 bg-[#0c0e14] [&>[data-slot=indicator]]:bg-gradient-to-r [&>[data-slot=indicator]]:from-blue-500 [&>[data-slot=indicator]]:to-purple-500" />
+                  <Progress value={v as number} className="h-2 bg-background [&>[data-slot=indicator]]:bg-gradient-to-r [&>[data-slot=indicator]]:from-blue-500 [&>[data-slot=indicator]]:to-purple-500" />
                 </div>
               ))}
             </CardContent>

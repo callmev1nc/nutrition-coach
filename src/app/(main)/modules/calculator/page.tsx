@@ -211,14 +211,14 @@ export default function CalculatorPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
-          <Calculator className="h-5 w-5 text-white" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-sm">
+          <Calculator className="h-5 w-5 text-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-primary">
             Calorie & Macro Calculator
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Calculate your TDEE, deficit options, and optimal macro split
           </p>
         </div>
@@ -226,13 +226,13 @@ export default function CalculatorPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ---------- Input Form ---------- */}
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <User className="h-4 w-4 text-indigo-400" />
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
               Your Details
             </CardTitle>
-            <CardDescription className="text-gray-500">
+            <CardDescription className="text-muted-foreground">
               Enter your body metrics for accurate calculations
             </CardDescription>
           </CardHeader>
@@ -240,27 +240,27 @@ export default function CalculatorPage() {
             {/* Age & Gender */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Age</Label>
+                <Label className="text-foreground">Age</Label>
                 <Input
                   type="number"
                   value={form.age}
                   onChange={(e) => updateField('age', e.target.value)}
-                  className="bg-[#0c0e14] border-[#2a2d37] text-white"
+                  className="bg-background border text-foreground"
                   placeholder="30"
                   min={1}
                   max={120}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Gender</Label>
+                <Label className="text-foreground">Gender</Label>
                 <Select
                   value={form.gender}
                   onValueChange={(v) => updateField('gender', v as Gender)}
                 >
-                  <SelectTrigger className="bg-[#0c0e14] border-[#2a2d37] text-white w-full">
+                  <SelectTrigger className="bg-background border text-foreground w-full">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1d27] border-[#2a2d37]">
+                  <SelectContent className="bg-card border">
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
                   </SelectContent>
@@ -271,24 +271,24 @@ export default function CalculatorPage() {
             {/* Height & Weight */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Height (cm)</Label>
+                <Label className="text-foreground">Height (cm)</Label>
                 <Input
                   type="number"
                   value={form.height}
                   onChange={(e) => updateField('height', e.target.value)}
-                  className="bg-[#0c0e14] border-[#2a2d37] text-white"
+                  className="bg-background border text-foreground"
                   placeholder="175"
                   min={1}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Weight (kg)</Label>
+                <Label className="text-foreground">Weight (kg)</Label>
                 <Input
                   type="number"
                   step="0.1"
                   value={form.weight}
                   onChange={(e) => updateField('weight', e.target.value)}
-                  className="bg-[#0c0e14] border-[#2a2d37] text-white"
+                  className="bg-background border text-foreground"
                   placeholder="85"
                   min={1}
                 />
@@ -297,7 +297,7 @@ export default function CalculatorPage() {
 
             {/* Body Fat % */}
             <div className="space-y-2">
-              <Label className="text-gray-300">
+              <Label className="text-foreground">
                 Body Fat % <span className="text-gray-600">(optional)</span>
               </Label>
               <Input
@@ -305,13 +305,13 @@ export default function CalculatorPage() {
                 step="0.1"
                 value={form.bodyFat}
                 onChange={(e) => updateField('bodyFat', e.target.value)}
-                className="bg-[#0c0e14] border-[#2a2d37] text-white"
+                className="bg-background border text-foreground"
                 placeholder="22"
                 min={1}
                 max={60}
               />
               {form.bodyFat && (
-                <p className="text-xs text-indigo-400/70">
+                <p className="text-xs text-primary/70">
                   Enables Katch-McArdle BMR for lean-mass-based accuracy
                 </p>
               )}
@@ -319,15 +319,15 @@ export default function CalculatorPage() {
 
             {/* Activity Level */}
             <div className="space-y-2">
-              <Label className="text-gray-300">Activity Level</Label>
+              <Label className="text-foreground">Activity Level</Label>
               <Select
                 value={form.activity}
                 onValueChange={(v) => updateField('activity', v as ActivityLevel)}
               >
-                <SelectTrigger className="bg-[#0c0e14] border-[#2a2d37] text-white w-full">
+                <SelectTrigger className="bg-background border text-foreground w-full">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1d27] border-[#2a2d37]">
+                <SelectContent className="bg-card border">
                   {Object.entries(ACTIVITY_LABELS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
@@ -340,8 +340,8 @@ export default function CalculatorPage() {
             {/* Training Days Slider */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-gray-300">Training Days / Week</Label>
-                <span className="text-sm font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-md">
+                <Label className="text-foreground">Training Days / Week</Label>
+                <span className="text-sm font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-md">
                   {form.trainingDays}
                 </span>
               </div>
@@ -365,9 +365,9 @@ export default function CalculatorPage() {
             </div>
 
             {/* Office Job Toggle */}
-            <div className="flex items-center justify-between rounded-lg border border-[#2a2d37] bg-[#0c0e14] p-3">
+            <div className="flex items-center justify-between rounded-lg border border bg-background p-3">
               <div>
-                <Label className="text-gray-300 text-sm">Office Job</Label>
+                <Label className="text-foreground text-sm">Office Job</Label>
                 <p className="text-xs text-gray-600 mt-0.5">
                   Applies -100 kcal NEAT adjustment
                 </p>
@@ -381,7 +381,7 @@ export default function CalculatorPage() {
             {/* Calculate Button */}
             <Button
               onClick={handleCalculate}
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/20 transition-all duration-200"
+              className="w-full bg-primary text-primary-foreground shadow-sm transition-all duration-200"
               size="lg"
             >
               <Calculator className="w-4 h-4 mr-2" />
@@ -394,51 +394,51 @@ export default function CalculatorPage() {
         {result && macros && (
           <div className="space-y-4">
             {/* Body Composition Analysis */}
-            <Card className="bg-[#1a1d27] border-[#2a2d37] relative overflow-hidden">
+            <Card className="bg-card border relative overflow-hidden">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-indigo-400" />
+                <CardTitle className="text-foreground flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" />
                   Body Composition Analysis
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#2a2d37] hover:bg-transparent">
-                      <TableHead className="text-gray-500">Metric</TableHead>
-                      <TableHead className="text-gray-500 text-right">Value</TableHead>
+                    <TableRow className="border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">Metric</TableHead>
+                      <TableHead className="text-muted-foreground text-right">Value</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow className="border-[#2a2d37]">
-                      <TableCell className="text-gray-400">BMR (Mifflin-St Jeor)</TableCell>
-                      <TableCell className="text-right text-white font-semibold">
+                    <TableRow className="border">
+                      <TableCell className="text-muted-foreground">BMR (Mifflin-St Jeor)</TableCell>
+                      <TableCell className="text-right text-foreground font-semibold">
                         {result.bmr_mifflin.toLocaleString()} kcal
                       </TableCell>
                     </TableRow>
                     {result.bmr_katch !== null && (
-                      <TableRow className="border-[#2a2d37]">
-                        <TableCell className="text-gray-400">
+                      <TableRow className="border">
+                        <TableCell className="text-muted-foreground">
                           BMR (Katch-McArdle)
-                          <span className="ml-2 text-[10px] text-indigo-400/70 bg-indigo-500/10 px-1.5 py-0.5 rounded">
+                          <span className="ml-2 text-[10px] text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded">
                             BF%
                           </span>
                         </TableCell>
-                        <TableCell className="text-right text-white font-semibold">
+                        <TableCell className="text-right text-foreground font-semibold">
                           {result.bmr_katch.toLocaleString()} kcal
                         </TableCell>
                       </TableRow>
                     )}
-                    <TableRow className="border-[#2a2d37]">
-                      <TableCell className="text-gray-400">TDEE</TableCell>
-                      <TableCell className="text-right text-indigo-400 font-bold">
+                    <TableRow className="border">
+                      <TableCell className="text-muted-foreground">TDEE</TableCell>
+                      <TableCell className="text-right text-primary font-bold">
                         {result.tdee.toLocaleString()} kcal
                       </TableCell>
                     </TableRow>
-                    <TableRow className="border-[#2a2d37]">
-                      <TableCell className="text-gray-400">Maintenance</TableCell>
-                      <TableCell className="text-right text-white font-semibold">
+                    <TableRow className="border">
+                      <TableCell className="text-muted-foreground">Maintenance</TableCell>
+                      <TableCell className="text-right text-foreground font-semibold">
                         {result.maintenance.toLocaleString()} kcal
                       </TableCell>
                     </TableRow>
@@ -448,23 +448,23 @@ export default function CalculatorPage() {
             </Card>
 
             {/* Deficit Options */}
-            <Card className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card className="bg-card border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-foreground flex items-center gap-2">
                   <Flame className="h-4 w-4 text-amber-400" />
                   Deficit Options
                 </CardTitle>
-                <CardDescription className="text-gray-500">
+                <CardDescription className="text-muted-foreground">
                   Select a deficit level to see your target calories and macros
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#2a2d37] hover:bg-transparent">
-                      <TableHead className="text-gray-500">Deficit Level</TableHead>
-                      <TableHead className="text-gray-500 text-right">Calories</TableHead>
-                      <TableHead className="text-gray-500 text-right">Weekly Loss</TableHead>
+                    <TableRow className="border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">Deficit Level</TableHead>
+                      <TableHead className="text-muted-foreground text-right">Calories</TableHead>
+                      <TableHead className="text-muted-foreground text-right">Weekly Loss</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -479,10 +479,10 @@ export default function CalculatorPage() {
                       return (
                         <TableRow
                           key={key}
-                          className={`border-[#2a2d37] cursor-pointer transition-colors ${
+                          className={`border cursor-pointer transition-colors ${
                             isSelected
-                              ? 'bg-indigo-500/10 ring-1 ring-indigo-500/30'
-                              : 'hover:bg-white/[0.02]'
+                              ? 'bg-primary/10 ring-1 ring-indigo-500/30'
+                              : 'hover:bg-muted/50'
                           }`}
                           onClick={() => setSelectedDeficit(key)}
                         >
@@ -493,7 +493,7 @@ export default function CalculatorPage() {
                                   isSelected ? 'bg-indigo-400' : 'bg-gray-600'
                                 }`}
                               />
-                              <span className={isSelected ? 'text-white font-medium' : 'text-gray-400'}>
+                              <span className={isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'}>
                                 {label} ({percent}%)
                               </span>
                             </div>
@@ -503,7 +503,7 @@ export default function CalculatorPage() {
                           >
                             {cal.toLocaleString()} kcal
                           </TableCell>
-                          <TableCell className="text-right text-gray-400">
+                          <TableCell className="text-right text-muted-foreground">
                             {weeklyLoss}
                           </TableCell>
                         </TableRow>
@@ -515,52 +515,52 @@ export default function CalculatorPage() {
             </Card>
 
             {/* Macronutrient Breakdown */}
-            <Card className="bg-[#1a1d27] border-[#2a2d37] relative overflow-hidden">
+            <Card className="bg-card border relative overflow-hidden">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-pink-500 via-yellow-500 to-indigo-500" />
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-foreground flex items-center gap-2">
                   <PieChart className="h-4 w-4 text-pink-400" />
                   Macronutrient Breakdown
                 </CardTitle>
-                <CardDescription className="text-gray-500">
-                  Target: <span className="text-white font-semibold">{deficitCalories.toLocaleString()} kcal</span> / day
+                <CardDescription className="text-muted-foreground">
+                  Target: <span className="text-foreground font-semibold">{deficitCalories.toLocaleString()} kcal</span> / day
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#2a2d37] hover:bg-transparent">
-                      <TableHead className="text-gray-500">Macro</TableHead>
-                      <TableHead className="text-gray-500 text-right">Grams</TableHead>
-                      <TableHead className="text-gray-500 text-right">Calories</TableHead>
-                      <TableHead className="text-gray-500 text-right">%</TableHead>
+                    <TableRow className="border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">Macro</TableHead>
+                      <TableHead className="text-muted-foreground text-right">Grams</TableHead>
+                      <TableHead className="text-muted-foreground text-right">Calories</TableHead>
+                      <TableHead className="text-muted-foreground text-right">%</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow className="border-[#2a2d37]">
+                    <TableRow className="border">
                       <TableCell className="text-pink-400 font-medium">Protein</TableCell>
-                      <TableCell className="text-right text-white">{macros.protein.grams}g</TableCell>
-                      <TableCell className="text-right text-gray-400">{macros.protein.calories}</TableCell>
-                      <TableCell className="text-right text-gray-400">{macros.protein.percent}%</TableCell>
+                      <TableCell className="text-right text-foreground">{macros.protein.grams}g</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{macros.protein.calories}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{macros.protein.percent}%</TableCell>
                     </TableRow>
-                    <TableRow className="border-[#2a2d37]">
+                    <TableRow className="border">
                       <TableCell className="text-yellow-400 font-medium">Carbs</TableCell>
-                      <TableCell className="text-right text-white">{macros.carbs.grams}g</TableCell>
-                      <TableCell className="text-right text-gray-400">{macros.carbs.calories}</TableCell>
-                      <TableCell className="text-right text-gray-400">{macros.carbs.percent}%</TableCell>
+                      <TableCell className="text-right text-foreground">{macros.carbs.grams}g</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{macros.carbs.calories}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{macros.carbs.percent}%</TableCell>
                     </TableRow>
-                    <TableRow className="border-[#2a2d37]">
-                      <TableCell className="text-indigo-400 font-medium">Fat</TableCell>
-                      <TableCell className="text-right text-white">{macros.fat.grams}g</TableCell>
-                      <TableCell className="text-right text-gray-400">{macros.fat.calories}</TableCell>
-                      <TableCell className="text-right text-gray-400">{macros.fat.percent}%</TableCell>
+                    <TableRow className="border">
+                      <TableCell className="text-primary font-medium">Fat</TableCell>
+                      <TableCell className="text-right text-foreground">{macros.fat.grams}g</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{macros.fat.calories}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{macros.fat.percent}%</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
 
                 {/* Macro bar visual */}
                 <div className="space-y-2">
-                  <div className="h-3 rounded-full bg-[#0c0e14] flex overflow-hidden">
+                  <div className="h-3 rounded-full bg-background flex overflow-hidden">
                     <div
                       className="bg-pink-500 transition-all duration-500"
                       style={{ width: `${macros.protein.percent}%` }}
@@ -570,7 +570,7 @@ export default function CalculatorPage() {
                       style={{ width: `${macros.carbs.percent}%` }}
                     />
                     <div
-                      className="bg-indigo-500 transition-all duration-500"
+                      className="bg-primary transition-all duration-500"
                       style={{ width: `${macros.fat.percent}%` }}
                     />
                   </div>
@@ -584,7 +584,7 @@ export default function CalculatorPage() {
                       Carbs
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="inline-block h-2 w-2 rounded-full bg-indigo-500" />
+                      <span className="inline-block h-2 w-2 rounded-full bg-primary" />
                       Fat
                     </span>
                   </div>
@@ -593,22 +593,22 @@ export default function CalculatorPage() {
             </Card>
 
             {/* Step-by-step Calculation Explanation */}
-            <Card className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card className="bg-card border">
               <button
                 className="w-full"
                 onClick={() => setShowExplanation(!showExplanation)}
                 type="button"
               >
-                <CardHeader className="hover:bg-white/[0.02] transition-colors rounded-t-xl">
-                  <CardTitle className="text-white text-sm flex items-center justify-between">
+                <CardHeader className="hover:bg-muted/50 transition-colors rounded-t-xl">
+                  <CardTitle className="text-foreground text-sm flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                      <Calculator className="h-4 w-4 text-gray-500" />
+                      <Calculator className="h-4 w-4 text-muted-foreground" />
                       Step-by-Step Calculation
                     </span>
                     {showExplanation ? (
-                      <ChevronUp className="h-4 w-4 text-gray-500" />
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     )}
                   </CardTitle>
                 </CardHeader>
@@ -617,36 +617,36 @@ export default function CalculatorPage() {
                 <CardContent>
                   <div className="space-y-3 text-sm">
                     {/* Step 1: BMR */}
-                    <div className="rounded-lg bg-[#0c0e14] p-3 space-y-1.5">
-                      <p className="text-indigo-400 font-medium">
+                    <div className="rounded-lg bg-background p-3 space-y-1.5">
+                      <p className="text-primary font-medium">
                         Step 1: Basal Metabolic Rate (BMR)
                       </p>
-                      <p className="text-gray-400">
-                        <span className="text-gray-500">Mifflin-St Jeor:</span>{' '}
+                      <p className="text-muted-foreground">
+                        <span className="text-muted-foreground">Mifflin-St Jeor:</span>{' '}
                         BMR = 10 x weight + 6.25 x height - 5 x age{' '}
                         {form.gender === 'male' ? '+ 5' : '- 161'}
                       </p>
-                      <p className="text-gray-400 font-mono text-xs">
+                      <p className="text-muted-foreground font-mono text-xs">
                         BMR = 10 x {form.weight} + 6.25 x {form.height} - 5 x {form.age}{' '}
                         {form.gender === 'male' ? '+ 5' : '- 161'} ={' '}
-                        <span className="text-white font-semibold">{result.bmr_mifflin}</span> kcal
+                        <span className="text-foreground font-semibold">{result.bmr_mifflin}</span> kcal
                       </p>
                       {result.bmr_katch !== null && (
                         <>
-                          <p className="text-gray-400 mt-2">
-                            <span className="text-gray-500">Katch-McArdle:</span>{' '}
+                          <p className="text-muted-foreground mt-2">
+                            <span className="text-muted-foreground">Katch-McArdle:</span>{' '}
                             BMR = 370 + 21.6 x lean_mass
                           </p>
-                          <p className="text-gray-400 font-mono text-xs">
+                          <p className="text-muted-foreground font-mono text-xs">
                             lean_mass = {form.weight} x (1 - {form.bodyFat}/100) ={' '}
                             +({(parseFloat(form.weight) * (1 - parseFloat(form.bodyFat) / 100)).toFixed(1)} kg)
                           </p>
-                          <p className="text-gray-400 font-mono text-xs">
+                          <p className="text-muted-foreground font-mono text-xs">
                             BMR = 370 + 21.6 x{' '}
                             {(parseFloat(form.weight) * (1 - parseFloat(form.bodyFat) / 100)).toFixed(1)} ={' '}
-                            <span className="text-white font-semibold">{result.bmr_katch}</span> kcal
+                            <span className="text-foreground font-semibold">{result.bmr_katch}</span> kcal
                           </p>
-                          <p className="text-xs text-indigo-400/70">
+                          <p className="text-xs text-primary/70">
                             Using Katch-McArdle as primary BMR (body fat provided)
                           </p>
                         </>
@@ -654,53 +654,53 @@ export default function CalculatorPage() {
                     </div>
 
                     {/* Step 2: TDEE */}
-                    <div className="rounded-lg bg-[#0c0e14] p-3 space-y-1.5">
+                    <div className="rounded-lg bg-background p-3 space-y-1.5">
                       <p className="text-amber-400 font-medium">
                         Step 2: Total Daily Energy Expenditure (TDEE)
                       </p>
-                      <p className="text-gray-400">
+                      <p className="text-muted-foreground">
                         TDEE = BMR x activity_multiplier
                         {form.officeJob ? ' - 100 (office adjustment)' : ''}
                       </p>
-                      <p className="text-gray-400 font-mono text-xs">
+                      <p className="text-muted-foreground font-mono text-xs">
                         TDEE = {result.bmr_katch ?? result.bmr_mifflin} x {activityMultiplier}
                         {form.officeJob ? ' - 100' : ''} ={' '}
-                        <span className="text-white font-semibold">{result.tdee}</span> kcal
+                        <span className="text-foreground font-semibold">{result.tdee}</span> kcal
                       </p>
                     </div>
 
                     {/* Step 3: Deficit */}
-                    <div className="rounded-lg bg-[#0c0e14] p-3 space-y-1.5">
+                    <div className="rounded-lg bg-background p-3 space-y-1.5">
                       <p className="text-green-400 font-medium">
                         Step 3: Caloric Deficit
                       </p>
-                      <p className="text-gray-400">
+                      <p className="text-muted-foreground">
                         Target = Maintenance - {DEFICIT_CONFIG.find((d) => d.key === selectedDeficit)?.percent}% deficit
                       </p>
-                      <p className="text-gray-400 font-mono text-xs">
+                      <p className="text-muted-foreground font-mono text-xs">
                         Target = {result.maintenance} x {(1 - (DEFICIT_CONFIG.find((d) => d.key === selectedDeficit)?.percent ?? 20) / 100).toFixed(2)} ={' '}
-                        <span className="text-white font-semibold">{deficitCalories}</span> kcal
+                        <span className="text-foreground font-semibold">{deficitCalories}</span> kcal
                       </p>
                     </div>
 
                     {/* Step 4: Macros */}
-                    <div className="rounded-lg bg-[#0c0e14] p-3 space-y-1.5">
+                    <div className="rounded-lg bg-background p-3 space-y-1.5">
                       <p className="text-pink-400 font-medium">
                         Step 4: Macronutrient Split
                       </p>
-                      <p className="text-gray-400">
+                      <p className="text-muted-foreground">
                         <span className="text-pink-400/70">Protein:</span> {form.weight}kg x 2.2g/kg ={' '}
-                        <span className="text-white">{macros.protein.grams}g</span>{' '}
+                        <span className="text-foreground">{macros.protein.grams}g</span>{' '}
                         ({macros.protein.calories} kcal)
                       </p>
-                      <p className="text-gray-400">
-                        <span className="text-indigo-400/70">Fat:</span> {deficitCalories} x 25% ={' '}
-                        <span className="text-white">{macros.fat.grams}g</span>{' '}
+                      <p className="text-muted-foreground">
+                        <span className="text-primary/70">Fat:</span> {deficitCalories} x 25% ={' '}
+                        <span className="text-foreground">{macros.fat.grams}g</span>{' '}
                         ({macros.fat.calories} kcal)
                       </p>
-                      <p className="text-gray-400">
+                      <p className="text-muted-foreground">
                         <span className="text-yellow-400/70">Carbs:</span> {deficitCalories} - {macros.protein.calories} - {macros.fat.calories} ={' '}
-                        <span className="text-white">{macros.carbs.grams}g</span>{' '}
+                        <span className="text-foreground">{macros.carbs.grams}g</span>{' '}
                         ({macros.carbs.calories} kcal)
                       </p>
                     </div>
@@ -710,13 +710,13 @@ export default function CalculatorPage() {
             </Card>
 
             {/* Save to Profile */}
-            <Card className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card className="bg-card border">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-3">
                   <Button
                     onClick={handleSaveToProfile}
                     disabled={saving || !result}
-                    className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/20"
+                    className="flex-1 bg-primary text-primary-foreground shadow-sm"
                     size="lg"
                   >
                     <Save className="w-4 h-4 mr-2" />

@@ -31,8 +31,24 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { date } = body;
+    const { date, force } = body;
     const targetDate = date || new Date().toISOString().split('T')[0];
+
+    // Return cached plan if exists and not forced
+    if (!force) {
+      const { data: existing } = await supabase
+        .from('meal_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('date', targetDate)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existing) {
+        return NextResponse.json({ mealPlan: existing });
+      }
+    }
 
     const calculations = calculateAll(
       profile.weight_kg,

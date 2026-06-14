@@ -1,10 +1,23 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { buildCoachSystemPrompt } from './ai-safety';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const MODEL_NAME = 'gemini-2.5-flash';
 
-const COACH_SYSTEM_PROMPT = `You are an elite AI Weight Loss & Nutrition Coach. Provide personalized, evidence-based advice. Be encouraging but honest. Never recommend dangerous deficits (below 1200 cal for women, 1500 for men). Always consider the user's profile data. Use metric units. Keep responses concise but thorough.`;
+/**
+ * Build the age-aware, persona-aware system instruction from a user profile.
+ * The profile is `Record<string, unknown>` from Supabase; we read the fields we
+ * need defensively. See src/lib/ai-safety.ts for the safety rules — they branch
+ * on age so minors never get adult calorie floors or unsafe advice.
+ */
+function coachSystemInstruction(userProfile: Record<string, unknown>): string {
+  return buildCoachSystemPrompt({
+    age: userProfile.age as number | undefined,
+    gender: userProfile.gender as string | undefined,
+    persona: userProfile.coach_persona as string | undefined,
+  });
+}
 
 function handleError(operation: string, error: unknown): never {
   const message = error instanceof Error ? error.message : String(error);
@@ -26,7 +39,7 @@ export async function getCoachResponse(
   try {
     const model = genAI.getGenerativeModel({
       model: MODEL_NAME,
-      systemInstruction: COACH_SYSTEM_PROMPT,
+      systemInstruction: coachSystemInstruction(userProfile),
     });
 
     const history = messages.slice(0, -1).map((msg) => ({
@@ -46,6 +59,38 @@ export async function getCoachResponse(
     return result.response.text();
   } catch (error) {
     handleError('getCoachResponse', error);
+  }
+}
+
+/**
+ * Stream a personalized coaching response token-by-token.
+ */
+export async function* streamCoachResponse(
+  messages: ChatMessage[],
+  userProfile: Record<string, unknown>
+): AsyncGenerator<string> {
+  try {
+    const model = genAI.getGenerativeModel({
+      model: MODEL_NAME,
+      systemInstruction: coachSystemInstruction(userProfile),
+    });
+
+    const history = messages.slice(0, -1).map((msg) => ({
+      role: msg.role === 'assistant' ? 'model' : ('user' as 'user' | 'model'),
+      parts: [{ text: msg.content }],
+    }));
+
+    const lastUserMessage = messages[messages.length - 1];
+    const chat = model.startChat({ history });
+    const profileContext = `\n\n[User Profile Context: ${JSON.stringify(userProfile)}]`;
+    const result = await chat.sendMessageStream(lastUserMessage.content + profileContext);
+
+    for await (const chunk of result.stream) {
+      const text = chunk.text();
+      if (text) yield text;
+    }
+  } catch (error) {
+    handleError('streamCoachResponse', error);
   }
 }
 

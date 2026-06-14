@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSupabase } from '@/components/providers/supabase-provider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,17 +13,11 @@ import {
   Sparkles,
   RotateCw,
 } from 'lucide-react'
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts'
+import dynamic from 'next/dynamic'
 import type { MealPlan, Meal, UserProfile } from '@/types'
 import { calculateAll } from '@/lib/calculations'
+
+const MacroChart = dynamic(() => import('@/components/macro-chart').then((mod) => mod.MacroChart), { ssr: false, loading: () => <div className="h-[220px] animate-pulse rounded-xl bg-muted" /> })
 
 const mealTypeColors: Record<string, { badge: string; bg: string; label: string }> = {
   breakfast: { badge: 'bg-amber-500/20 text-amber-400', bg: 'border-l-amber-500', label: 'Breakfast' },
@@ -33,12 +27,12 @@ const mealTypeColors: Record<string, { badge: string; bg: string; label: string 
 }
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-white/[0.06] ${className ?? ''}`} />
+  return <div className={`animate-pulse rounded-lg bg-muted ${className ?? ''}`} />
 }
 
 function MealCardSkeleton() {
   return (
-    <Card className="bg-[#1a1d27] border-[#2a2d37]">
+    <Card className="bg-card border">
       <CardHeader className="pb-2">
         <Skeleton className="h-4 w-24" />
       </CardHeader>
@@ -56,10 +50,10 @@ function MacroBar({ label, current, target, color }: { label: string; current: n
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-gray-400">{label}</span>
-        <span className="text-gray-500">{current}g / {target}g</span>
+        <span className="text-muted-foreground">{label}</span>
+        <span className="text-muted-foreground">{current}g / {target}g</span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
     </div>
@@ -106,7 +100,7 @@ export default function MealsPage() {
       const res = await fetch('/api/meals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date }),
+        body: JSON.stringify({ date, force: mealPlan !== null }),
       })
       const json = await res.json()
       if (json.mealPlan) setMealPlan(json.mealPlan)
@@ -127,69 +121,72 @@ export default function MealsPage() {
     setDate(d.toISOString().split('T')[0])
   }
 
-  const targetMacros = profile
-    ? calculateAll(
-        profile.weight_kg,
-        profile.height_cm,
-        profile.age,
-        profile.gender,
-        profile.body_fat_percent ?? null,
-        profile.activity_level,
-        profile.office_job,
-        profile.training_days_per_week
-      )
-    : null
+  const targetMacros = useMemo(() =>
+    profile
+      ? calculateAll(
+          profile.weight_kg,
+          profile.height_cm,
+          profile.age,
+          profile.gender,
+          profile.body_fat_percent ?? null,
+          profile.activity_level,
+          profile.office_job,
+          profile.training_days_per_week
+        )
+      : null
+  , [profile])
 
   const meals = mealPlan?.meals ?? []
 
-  const totalCalories = meals.reduce((s, m) => s + m.calories, 0)
-  const totalProtein = meals.reduce((s, m) => s + m.protein, 0)
-  const totalCarbs = meals.reduce((s, m) => s + m.carbs, 0)
-  const totalFat = meals.reduce((s, m) => s + m.fat, 0)
-
-  const chartData = meals.map((m) => ({
-    name: m.type.charAt(0).toUpperCase() + m.type.slice(1),
-    calories: m.calories,
-    protein: m.protein,
-    carbs: m.carbs,
-    fat: m.fat,
-  }))
+  const { totalCalories, totalProtein, totalCarbs, totalFat, chartData } = useMemo(() => ({
+    totalCalories: meals.reduce((s, m) => s + m.calories, 0),
+    totalProtein: meals.reduce((s, m) => s + m.protein, 0),
+    totalCarbs: meals.reduce((s, m) => s + m.carbs, 0),
+    totalFat: meals.reduce((s, m) => s + m.fat, 0),
+    chartData: meals.map((m) => ({
+      name: m.type.charAt(0).toUpperCase() + m.type.slice(1),
+      calories: m.calories,
+      protein: m.protein,
+      carbs: m.carbs,
+      fat: m.fat,
+    })),
+  }), [mealPlan])
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent flex items-center gap-3">
-          <UtensilsCrossed className="w-7 h-7 text-emerald-400" />
+        <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
+          <UtensilsCrossed className="w-7 h-7 text-primary" />
           Meal Plans
         </h1>
       </div>
 
       {/* Date Navigation */}
       <div className="flex items-center justify-center gap-4">
-        <Button variant="ghost" size="icon" onClick={prevDay} className="text-gray-400 hover:text-white">
+        <Button variant="ghost" size="icon" onClick={prevDay} className="text-muted-foreground hover:text-foreground">
           <ChevronLeft />
         </Button>
-        <span className="text-lg font-medium text-white">{date}</span>
-        <Button variant="ghost" size="icon" onClick={nextDay} className="text-gray-400 hover:text-white">
+        <span className="text-lg font-medium text-foreground">{date}</span>
+        <Button variant="ghost" size="icon" onClick={nextDay} className="text-muted-foreground hover:text-foreground">
           <ChevronRight />
         </Button>
       </div>
 
       {/* Generate Button */}
       {!mealPlan && !loading && (
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardContent className="pt-6 text-center space-y-4">
             <div className="flex justify-center">
               <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <Sparkles className="w-7 h-7 text-emerald-400" />
+                <Sparkles className="w-7 h-7 text-primary" />
               </div>
             </div>
-            <p className="text-gray-400 text-sm">No meal plan for this date yet.</p>
+            <p className="text-muted-foreground text-sm">No meal plan for this date yet.</p>
             <Button
               onClick={generatePlan}
               disabled={generating}
-              className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+              className="bg-primary text-primary-foreground"
             >
               {generating ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
@@ -215,7 +212,7 @@ export default function MealsPage() {
       {generating && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card key={i} className="bg-card border">
               <CardHeader className="pb-2">
                 <Skeleton className="h-5 w-28" />
               </CardHeader>
@@ -237,10 +234,10 @@ export default function MealsPage() {
             {meals.map((meal: Meal, i: number) => {
               const colors = mealTypeColors[meal.type] ?? mealTypeColors.breakfast
               return (
-                <Card key={i} className={`bg-[#1a1d27] border-[#2a2d37] border-l-4 ${colors.bg}`}>
+                <Card key={i} className={`bg-card border border-l-4 ${colors.bg}`}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm text-white flex items-center gap-2">
+                      <CardTitle className="text-sm text-foreground flex items-center gap-2">
                         {meal.name}
                       </CardTitle>
                       <Badge className={colors.badge}>{colors.label}</Badge>
@@ -249,7 +246,7 @@ export default function MealsPage() {
                   <CardContent className="space-y-2">
                     <table className="w-full text-xs">
                       <thead>
-                        <tr className="text-gray-500 border-b border-[#2a2d37]/50">
+                        <tr className="text-muted-foreground border-b border/50">
                           <th className="text-left py-1 font-medium">Food</th>
                           <th className="text-right py-1 font-medium">Qty</th>
                           <th className="text-right py-1 font-medium">Cal</th>
@@ -260,21 +257,21 @@ export default function MealsPage() {
                       </thead>
                       <tbody>
                         {meal.foods.map((food, fi) => (
-                          <tr key={fi} className="border-b border-[#2a2d37]/30">
-                            <td className="py-1 text-gray-300">{food.name}</td>
-                            <td className="py-1 text-gray-500 text-right">{food.quantity}</td>
-                            <td className="py-1 text-gray-300 text-right">{food.calories}</td>
-                            <td className="py-1 text-gray-500 text-right hidden sm:table-cell">{food.protein}g</td>
-                            <td className="py-1 text-gray-500 text-right hidden sm:table-cell">{food.carbs}g</td>
-                            <td className="py-1 text-gray-500 text-right hidden sm:table-cell">{food.fat}g</td>
+                          <tr key={fi} className="border-b border/30">
+                            <td className="py-1 text-foreground">{food.name}</td>
+                            <td className="py-1 text-muted-foreground text-right">{food.quantity}</td>
+                            <td className="py-1 text-foreground text-right">{food.calories}</td>
+                            <td className="py-1 text-muted-foreground text-right hidden sm:table-cell">{food.protein}g</td>
+                            <td className="py-1 text-muted-foreground text-right hidden sm:table-cell">{food.carbs}g</td>
+                            <td className="py-1 text-muted-foreground text-right hidden sm:table-cell">{food.fat}g</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                    <div className="flex justify-between text-xs pt-1 border-t border-[#2a2d37]/50">
-                      <span className="text-gray-400">Total</span>
-                      <span className="text-white font-medium">{meal.calories} cal</span>
-                      <span className="text-gray-500 hidden sm:inline">{meal.protein}P / {meal.carbs}C / {meal.fat}F</span>
+                    <div className="flex justify-between text-xs pt-1 border-t border/50">
+                      <span className="text-muted-foreground">Total</span>
+                      <span className="text-foreground font-medium">{meal.calories} cal</span>
+                      <span className="text-muted-foreground hidden sm:inline">{meal.protein}P / {meal.carbs}C / {meal.fat}F</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -288,7 +285,7 @@ export default function MealsPage() {
               onClick={generatePlan}
               disabled={generating}
               variant="outline"
-              className="border-[#2a2d37] text-gray-400 hover:text-white"
+              className="border text-muted-foreground hover:text-foreground"
             >
               <RotateCw className={`w-4 h-4 mr-2 ${generating ? 'animate-spin' : ''}`} />
               Regenerate Plan
@@ -296,20 +293,20 @@ export default function MealsPage() {
           </div>
 
           {/* Day Totals Summary */}
-          <Card className="bg-[#1a1d27] border-[#2a2d37]">
+          <Card className="bg-card border">
             <CardHeader>
-              <CardTitle className="text-sm text-gray-400">Day Totals vs Targets</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">Day Totals vs Targets</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Calories */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-400">Calories</span>
-                  <span className="text-gray-500">
+                  <span className="text-muted-foreground">Calories</span>
+                  <span className="text-muted-foreground">
                     {totalCalories} / {targetMacros?.target_calories ?? '---'} kcal
                   </span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
                     style={{
@@ -330,25 +327,12 @@ export default function MealsPage() {
 
           {/* Macro Distribution Chart */}
           {chartData.length > 0 && (
-            <Card className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-sm text-gray-400">Macro Distribution by Meal</CardTitle>
+                <CardTitle className="text-sm text-muted-foreground">Macro Distribution by Meal</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                    <XAxis dataKey="name" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                    <Tooltip
-                      contentStyle={{ background: '#1a1d27', border: '1px solid #2a2d37', borderRadius: '8px', color: '#e0e0e0', fontSize: '13px' }}
-                      labelStyle={{ color: '#9ca3af' }}
-                    />
-                    <Bar dataKey="protein" name="Protein" fill="#f472b6" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="carbs" name="Carbs" fill="#60a5fa" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="fat" name="Fat" fill="#fbbf24" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <MacroChart data={chartData} />
               </CardContent>
             </Card>
           )}

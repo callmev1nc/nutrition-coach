@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { sanitizeProfileInput } from '@/lib/profile-validation'
 
 export async function POST(request: Request) {
   try {
@@ -15,10 +16,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const raw = await request.json().catch(() => null)
 
-    if (body.id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    // Whitelist + clamp every field. Unknown keys are dropped; gameable fields
+    // (xp_total, level, streak_*, badges, last_active_date) are never writable
+    // here — they only change via the secured award_xp() function.
+    const { ok, data, error } = sanitizeProfileInput(raw)
+    if (!ok || !data) {
+      return NextResponse.json({ error: error ?? 'Invalid profile data.' }, { status: 400 })
     }
 
     const serviceClient = createServiceClient(
@@ -28,7 +33,7 @@ export async function POST(request: Request) {
 
     const { error: upsertError } = await serviceClient
       .from('profiles')
-      .upsert(body, { onConflict: 'id' })
+      .upsert({ id: user.id, ...data }, { onConflict: 'id' })
 
     if (upsertError) {
       console.error('Profile upsert error:', upsertError)

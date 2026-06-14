@@ -1,17 +1,18 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { useSupabase } from '@/components/providers/supabase-provider'
+import { Confetti } from '@/components/motion/confetti'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { CheckSquare, Droplets, Moon, Footprints, Dumbbell, ChevronLeft, ChevronRight, Save, Flame, Trophy, Loader2 } from 'lucide-react'
+import { CheckSquare, Droplets, Moon, Footprints, Dumbbell, ChevronLeft, ChevronRight, Save, Flame, Trophy, Snowflake } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
-import type { HabitLog } from '@/types'
+import type { HabitLog, UserProfile } from '@/types'
+import { awardXp } from '@/lib/client-gamification'
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-white/[0.06] ${className ?? ''}`} />
+  return <div className={`animate-pulse rounded-lg bg-muted ${className ?? ''}`} />
 }
 
 export default function HabitsPage() {
@@ -25,6 +26,8 @@ export default function HabitsPage() {
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(true)
   const [recentLogs, setRecentLogs] = useState<HabitLog[]>([])
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [fire, setFire] = useState(0)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -32,9 +35,10 @@ export default function HabitsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const [todayRes, recentRes] = await Promise.all([
+      const [todayRes, recentRes, profRes] = await Promise.all([
         supabase.from('habit_logs').select('*').eq('user_id', user.id).eq('date', date).maybeSingle(),
         supabase.from('habit_logs').select('*').eq('user_id', user.id).order('date', { ascending: true }).limit(7),
+        supabase.from('profiles').select('streak_freezes, avatar_emoji').eq('id', user.id).single(),
       ])
 
       if (todayRes.data) {
@@ -48,6 +52,7 @@ export default function HabitsPage() {
       }
 
       if (recentRes.data) setRecentLogs(recentRes.data)
+      if (profRes.data) setProfile(profRes.data as UserProfile)
     } finally {
       setLoading(false)
     }
@@ -69,15 +74,29 @@ export default function HabitsPage() {
       workout_completed: workout,
       calories_consumed: calories ? parseInt(calories) : null,
     }, { onConflict: 'user_id,date' })
+
+    // Gamification: XP for logging + bonus for a completed workout.
+    await awardXp(supabase, 'log_habits')
+    if (workout) {
+      const res = await awardXp(supabase, 'complete_workout')
+      if (res?.leveled_up) setFire((f) => f + 1)
+    }
+
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
     loadData()
   }
 
+  const toggleWorkout = () => {
+    const next = !workout
+    setWorkout(next)
+    if (next) setFire((f) => f + 1)
+  }
+
   const prevDay = () => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d.toISOString().split('T')[0]) }
   const nextDay = () => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d.toISOString().split('T')[0]) }
 
-  // Streak tracking
+  // Streak tracking (most-recent-first)
   const reversed = [...recentLogs].reverse()
   let streak = 0
   for (const log of reversed) {
@@ -86,7 +105,6 @@ export default function HabitsPage() {
     } else break
   }
 
-  // Weekly chart data
   const chartData = recentLogs.map(l => ({
     date: l.date.slice(5),
     water: Math.round(l.water_ml / 250),
@@ -95,9 +113,9 @@ export default function HabitsPage() {
   }))
 
   const habitCards = [
-    { key: 'water', label: 'Water Intake', val: water, set: setWater, target: 2500, max: 4000, step: 100, unit: 'ml', color: '#3b82f6', Icon: Droplets },
-    { key: 'sleep', label: 'Sleep Hours', val: sleep, set: setSleep, target: 8, max: 12, step: 0.5, unit: 'h', color: '#8b5cf6', Icon: Moon },
-    { key: 'steps', label: 'Steps', val: steps, set: setSteps, target: 8000, max: 20000, step: 500, unit: '', color: '#22c55e', Icon: Footprints },
+    { key: 'water', label: 'Water Intake', val: water, set: setWater, target: 2500, max: 4000, step: 100, unit: 'ml', color: 'var(--hydration)', Icon: Droplets },
+    { key: 'sleep', label: 'Sleep Hours', val: sleep, set: setSleep, target: 8, max: 12, step: 0.5, unit: 'h', color: 'var(--chart-1)', Icon: Moon },
+    { key: 'steps', label: 'Steps', val: steps, set: setSteps, target: 8000, max: 20000, step: 500, unit: '', color: 'var(--success)', Icon: Footprints },
   ]
 
   if (loading) {
@@ -117,27 +135,37 @@ export default function HabitsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-3">
-        <CheckSquare className="w-7 h-7 text-indigo-400" />Habit Tracker
+      <Confetti fire={fire} />
+      <h1 className="font-display text-2xl font-bold text-primary flex items-center gap-3">
+        <CheckSquare className="w-7 h-7" />Habit Tracker
       </h1>
 
       {/* Streak + Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="bg-gradient-to-br from-amber-950/30 to-[#1a1d27] border-amber-500/20">
-          <CardContent className="pt-4 flex items-center gap-3">
-            <Trophy className={`w-8 h-8 ${streak > 0 ? 'text-amber-400' : 'text-gray-600'}`} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-card">
+          <CardContent className="flex items-center gap-3 pt-4">
+            <Trophy className="w-8 h-8 text-[var(--energy)]" />
             <div>
-              <p className="text-2xl font-bold text-white">{streak}</p>
-              <p className="text-xs text-gray-400">Day streak</p>
+              <p className="font-display text-2xl font-bold text-foreground">{streak}</p>
+              <p className="text-xs text-muted-foreground">Day streak 🔥</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-indigo-950/30 to-[#1a1d27] border-indigo-500/20">
-          <CardContent className="pt-4 flex items-center gap-3">
-            <Flame className="w-8 h-8 text-indigo-400" />
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-card">
+          <CardContent className="flex items-center gap-3 pt-4">
+            <Flame className="w-8 h-8 text-primary" />
             <div>
-              <p className="text-2xl font-bold text-white">{recentLogs.length > 0 ? recentLogs.filter(l => l.workout_completed).length : 0}</p>
-              <p className="text-xs text-gray-400">Workouts (7d)</p>
+              <p className="font-display text-2xl font-bold text-foreground">{recentLogs.filter(l => l.workout_completed).length}</p>
+              <p className="text-xs text-muted-foreground">Workouts (7d)</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="col-span-2 border-primary/20 bg-gradient-to-br from-primary/5 to-card md:col-span-1">
+          <CardContent className="flex items-center gap-3 pt-4">
+            <Snowflake className="w-8 h-8 text-[var(--carbs)]" />
+            <div>
+              <p className="font-display text-2xl font-bold text-foreground">{profile?.streak_freezes ?? 2}</p>
+              <p className="text-xs text-muted-foreground">Streak freezes</p>
             </div>
           </CardContent>
         </Card>
@@ -145,23 +173,24 @@ export default function HabitsPage() {
 
       {/* Weekly Chart */}
       {chartData.length > 0 && (
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-400">7-Day Habit Summary</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">7-Day Habit Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="date" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} width={30} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="date" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={30} />
                 <Tooltip
-                  contentStyle={{ background: '#1a1d27', border: '1px solid #2a2d37', borderRadius: '8px', color: '#e0e0e0', fontSize: '12px' }}
-                  labelStyle={{ color: '#9ca3af' }}
+                  cursor={{ fill: 'var(--muted)' }}
+                  contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--foreground)', fontSize: '12px' }}
+                  labelStyle={{ color: 'var(--muted-foreground)' }}
                 />
-                <Bar dataKey="water" name="Water (glasses)" fill="#3b82f6" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="sleep" name="Sleep (hrs)" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="steps" name="Steps (k)" fill="#22c55e" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="water" name="Water (glasses)" fill="var(--hydration)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sleep" name="Sleep (hrs)" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="steps" name="Steps (k)" fill="var(--success)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -170,30 +199,30 @@ export default function HabitsPage() {
 
       {/* Date Navigation */}
       <div className="flex items-center justify-center gap-4">
-        <Button variant="ghost" size="icon" onClick={prevDay} className="text-gray-400 hover:text-white"><ChevronLeft /></Button>
-        <span className="text-lg font-medium text-white">{date}</span>
-        <Button variant="ghost" size="icon" onClick={nextDay} className="text-gray-400 hover:text-white"><ChevronRight /></Button>
+        <Button variant="ghost" size="icon" onClick={prevDay} className="text-muted-foreground hover:text-foreground"><ChevronLeft /></Button>
+        <span className="font-display text-lg font-medium text-foreground">{date}</span>
+        <Button variant="ghost" size="icon" onClick={nextDay} className="text-muted-foreground hover:text-foreground"><ChevronRight /></Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {habitCards.map(h => {
           const pct = h.target > 0 ? Math.min(100, Math.round((h.val / h.target) * 100)) : 0
           return (
-            <Card key={h.key} className="bg-[#1a1d27] border-[#2a2d37]">
+            <Card key={h.key} className="bg-card border">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <h.Icon className="w-4 h-4" style={{ color: h.color }} />
-                  <span className="text-gray-300">{h.label}</span>
-                  <span className="ml-auto text-gray-500 text-xs">{pct}%</span>
+                  <span className="text-foreground">{h.label}</span>
+                  <span className="ml-auto text-muted-foreground text-xs">{pct}%</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-white">{h.val}</span>
-                  <span className="text-gray-500">{h.unit} / {h.target} {h.unit}</span>
+                  <span className="font-display text-2xl font-bold text-foreground">{h.val}</span>
+                  <span className="text-muted-foreground">{h.unit} / {h.target} {h.unit}</span>
                 </div>
                 <Slider value={[h.val]} onValueChange={(v) => h.set(typeof v === 'number' ? v : v[0])} max={h.max} step={h.step} />
-                <div className="h-2 rounded-full bg-[#0c0e14]">
+                <div className="h-2 rounded-full bg-muted">
                   <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: h.color }} />
                 </div>
               </CardContent>
@@ -201,37 +230,37 @@ export default function HabitsPage() {
           )
         })}
 
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Dumbbell className="w-4 h-4 text-orange-400" />
-              <span className="text-gray-300">Workout</span>
+              <Dumbbell className="w-4 h-4 text-[var(--energy)]" />
+              <span className="text-foreground">Workout</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <button
-              onClick={() => setWorkout(!workout)}
-              className={`w-full py-4 rounded-xl text-lg font-medium transition-all ${
+              onClick={toggleWorkout}
+              className={`press w-full py-4 rounded-xl text-lg font-medium transition-all ${
                 workout
-                  ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                  : 'bg-[#0c0e14] text-gray-500 border border-[#2a2d37]'
+                  ? 'bg-[var(--energy)]/20 text-[var(--energy)] border border-[var(--energy)]/40 brand-glow'
+                  : 'bg-muted text-muted-foreground border border-transparent'
               }`}
             >
-              {workout ? '✓ Completed' : 'Not yet'}
+              {workout ? '✓ Completed (+50 XP)' : 'Mark as done'}
             </button>
           </CardContent>
         </Card>
 
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-300">Calories Consumed</CardTitle>
+            <CardTitle className="text-sm text-foreground">Calories Consumed</CardTitle>
           </CardHeader>
           <CardContent>
             <Input
               type="number"
               value={calories}
               onChange={e => setCalories(e.target.value)}
-              className="bg-[#0c0e14] border-[#2a2d37] text-white"
+              className="bg-background border text-foreground"
               placeholder="e.g. 1850"
             />
           </CardContent>
@@ -240,10 +269,10 @@ export default function HabitsPage() {
 
       <Button
         onClick={saveData}
-        className={`w-full text-white ${saved ? 'bg-green-600' : 'bg-gradient-to-r from-indigo-500 to-purple-600'}`}
+        className={`press w-full text-sm font-medium ${saved ? 'bg-[var(--success)] text-[var(--brand-foreground)]' : 'bg-primary text-primary-foreground'}`}
       >
         <Save className="w-4 h-4 mr-2" />
-        {saved ? 'Saved!' : 'Save'}
+        {saved ? 'Saved! +15 XP' : 'Save habits'}
       </Button>
     </div>
   )

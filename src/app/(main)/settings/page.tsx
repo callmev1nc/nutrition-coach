@@ -30,11 +30,15 @@ import {
   Download,
   Key,
   Loader2,
+  Palette,
   Save,
   Settings,
+  Sparkles,
   Trash2,
   User,
 } from 'lucide-react'
+import { useTheme } from '@/components/providers/theme-provider'
+import { THEMES, COACH_PERSONAS, AVATAR_OPTIONS, type ThemeKey } from '@/lib/themes'
 
 interface ProfileFormData {
   age: string
@@ -88,6 +92,10 @@ const SLEEP_OPTIONS = [
 export default function SettingsPage() {
   const supabase = useSupabase()
   const router = useRouter()
+  const { setTheme } = useTheme()
+  const [theme, setThemeState] = useState<string>('volt')
+  const [persona, setPersona] = useState<string>('hype')
+  const [avatar, setAvatar] = useState<string>('🔥')
 
   // Profile form
   const [form, setForm] = useState<ProfileFormData>(EMPTY_FORM)
@@ -158,6 +166,9 @@ export default function SettingsPage() {
         joint_pain_areas: data.joint_pain_areas ?? '',
         sleep_quality: data.sleep_quality ?? '',
       })
+      setThemeState(data.theme ?? 'volt')
+      setPersona(data.coach_persona ?? 'hype')
+      setAvatar(data.avatar_emoji ?? '🔥')
       setProfileLoading(false)
     }
 
@@ -365,43 +376,77 @@ export default function SettingsPage() {
     }
   }
 
+  // ---------- Personalization (theme / persona / avatar) ----------
+  const savePersonalization = useCallback(
+    async (patch: Record<string, string>) => {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (!user) return
+        await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(patch),
+        })
+      } catch {
+        // best-effort — UI already updated optimistically
+      }
+    },
+    [supabase]
+  )
+
+  const onTheme = (k: ThemeKey) => {
+    setThemeState(k)
+    setTheme(k)
+    savePersonalization({ theme: k })
+  }
+  const onPersona = (k: string) => {
+    setPersona(k)
+    savePersonalization({ coach_persona: k })
+  }
+  const onAvatar = (e: string) => {
+    setAvatar(e)
+    savePersonalization({ avatar_emoji: e })
+  }
+
   // ---------- Loading state ----------
   if (profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0c0e14]">
-        <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     )
   }
 
   const inputClass =
-    'bg-[#0c0e14] border-[#2a2d37] text-white placeholder:text-gray-500'
-  const selectTriggerClass = 'w-full bg-[#0c0e14] border-[#2a2d37] text-white'
+    'bg-background border text-foreground placeholder:text-muted-foreground'
+  const selectTriggerClass = 'w-full bg-background border text-foreground'
 
   return (
-    <div className="min-h-screen bg-[#0c0e14] py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <Settings className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+            <Settings className="w-5 h-5 text-foreground" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Settings</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+            <p className="text-sm text-muted-foreground">
               Manage your profile and account
             </p>
           </div>
         </div>
 
         {/* ===== Profile Section ===== */}
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-indigo-400" />
-              <CardTitle className="text-lg text-white">Profile</CardTitle>
+              <User className="w-4 h-4 text-primary" />
+              <CardTitle className="text-lg text-foreground">Profile</CardTitle>
             </div>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-muted-foreground">
               Update your personal information and preferences
             </CardDescription>
           </CardHeader>
@@ -410,7 +455,7 @@ export default function SettingsPage() {
               <div
                 className={`p-3 rounded-lg border text-sm ${
                   profileMsg.type === 'success'
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                    ? 'bg-primary/10 border-primary/20 text-primary'
                     : 'bg-red-500/10 border-red-500/20 text-red-400'
                 }`}
               >
@@ -421,7 +466,7 @@ export default function SettingsPage() {
             {/* Basic stats row */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Age</Label>
+                <Label className="text-foreground">Age</Label>
                 <Input
                   type="number"
                   value={form.age}
@@ -431,7 +476,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Gender</Label>
+                <Label className="text-foreground">Gender</Label>
                 <Select
                   value={form.gender}
                   onValueChange={(v) => v && updateField('gender', v)}
@@ -439,7 +484,7 @@ export default function SettingsPage() {
                   <SelectTrigger className={selectTriggerClass}>
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1d27] border-[#2a2d37]">
+                  <SelectContent className="bg-card border">
                     <SelectItem value="male" className="text-gray-200">
                       Male
                     </SelectItem>
@@ -453,7 +498,7 @@ export default function SettingsPage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Height (cm)</Label>
+                <Label className="text-foreground">Height (cm)</Label>
                 <Input
                   type="number"
                   value={form.height_cm}
@@ -463,7 +508,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Weight (kg)</Label>
+                <Label className="text-foreground">Weight (kg)</Label>
                 <Input
                   type="number"
                   value={form.weight_kg}
@@ -473,9 +518,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">
+                <Label className="text-foreground">
                   Body Fat %{' '}
-                  <span className="text-gray-500 text-xs">(opt)</span>
+                  <span className="text-muted-foreground text-xs">(opt)</span>
                 </Label>
                 <Input
                   type="number"
@@ -492,7 +537,7 @@ export default function SettingsPage() {
             {/* Activity & training */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Activity Level</Label>
+                <Label className="text-foreground">Activity Level</Label>
                 <Select
                   value={form.activity_level}
                   onValueChange={(v) => v && updateField('activity_level', v)}
@@ -500,7 +545,7 @@ export default function SettingsPage() {
                   <SelectTrigger className={selectTriggerClass}>
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1d27] border-[#2a2d37]">
+                  <SelectContent className="bg-card border">
                     {ACTIVITY_OPTIONS.map((opt) => (
                       <SelectItem
                         key={opt.value}
@@ -514,7 +559,7 @@ export default function SettingsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Training Days / Week</Label>
+                <Label className="text-foreground">Training Days / Week</Label>
                 <Input
                   type="number"
                   min={0}
@@ -532,10 +577,10 @@ export default function SettingsPage() {
             </div>
 
             {/* Office job toggle */}
-            <div className="flex items-center justify-between p-4 rounded-xl bg-[#0c0e14] border border-[#2a2d37]">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-background border border">
               <div>
-                <Label className="text-gray-300">Office Job</Label>
-                <p className="text-xs text-gray-500">
+                <Label className="text-foreground">Office Job</Label>
+                <p className="text-xs text-muted-foreground">
                   Do you mostly sit during work?
                 </p>
               </div>
@@ -544,8 +589,8 @@ export default function SettingsPage() {
                 role="switch"
                 aria-checked={form.office_job}
                 onClick={() => updateField('office_job', !form.office_job)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                  form.office_job ? 'bg-indigo-500' : 'bg-[#2a2d37]'
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                  form.office_job ? 'bg-primary' : 'bg-border'
                 }`}
               >
                 <span
@@ -559,7 +604,7 @@ export default function SettingsPage() {
             {/* Goals */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Goal Weight (kg)</Label>
+                <Label className="text-foreground">Goal Weight (kg)</Label>
                 <Input
                   type="number"
                   value={form.goal_weight_kg}
@@ -571,9 +616,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">
+                <Label className="text-foreground">
                   Weekly Budget ($){' '}
-                  <span className="text-gray-500 text-xs">(opt)</span>
+                  <span className="text-muted-foreground text-xs">(opt)</span>
                 </Label>
                 <Input
                   type="number"
@@ -587,7 +632,7 @@ export default function SettingsPage() {
 
             {/* Text areas */}
             <div className="space-y-2">
-              <Label className="text-gray-300">Food Preferences</Label>
+              <Label className="text-foreground">Food Preferences</Label>
               <Textarea
                 value={form.food_preferences}
                 onChange={(e) =>
@@ -599,7 +644,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">Medical Limitations</Label>
+              <Label className="text-foreground">Medical Limitations</Label>
               <Textarea
                 value={form.medical_limitations}
                 onChange={(e) =>
@@ -611,7 +656,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">Joint Pain Areas</Label>
+              <Label className="text-foreground">Joint Pain Areas</Label>
               <Textarea
                 value={form.joint_pain_areas}
                 onChange={(e) =>
@@ -623,7 +668,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">Sleep Quality</Label>
+              <Label className="text-foreground">Sleep Quality</Label>
               <Select
                 value={form.sleep_quality}
                 onValueChange={(v) => v && updateField('sleep_quality', v)}
@@ -631,7 +676,7 @@ export default function SettingsPage() {
                 <SelectTrigger className={selectTriggerClass}>
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1d27] border-[#2a2d37]">
+                <SelectContent className="bg-card border">
                   {SLEEP_OPTIONS.map((opt) => (
                     <SelectItem
                       key={opt.value}
@@ -648,7 +693,7 @@ export default function SettingsPage() {
             <Button
               onClick={handleSaveProfile}
               disabled={profileSaving}
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+              className="w-full bg-primary text-primary-foreground"
             >
               {profileSaving ? (
                 <>
@@ -665,16 +710,123 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* ===== Change Password Section ===== */}
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        {/* ===== Personalization Section ===== */}
+        <Card className="bg-card border">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Key className="w-4 h-4 text-indigo-400" />
-              <CardTitle className="text-lg text-white">
+              <Palette className="w-4 h-4 text-primary" />
+              <CardTitle className="text-lg text-foreground">Make it yours</CardTitle>
+            </div>
+            <CardDescription className="text-muted-foreground">
+              Pick your vibe — theme, coach personality, and avatar
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Theme picker */}
+            <div className="space-y-2">
+              <Label className="text-foreground">Theme</Label>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {THEMES.map((t) => {
+                  const active = theme === t.key
+                  return (
+                    <button
+                      key={t.key}
+                      type="button"
+                      onClick={() => onTheme(t.key)}
+                      className={`press relative overflow-hidden rounded-2xl border-2 p-3 text-left transition-all ${
+                        active ? 'border-primary brand-glow' : 'border-border hover:border-primary/40'
+                      }`}
+                      aria-pressed={active}
+                    >
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="flex">
+                          <span
+                            className="h-6 w-6 rounded-full border-2 border-white"
+                            style={{ background: t.swatch.primary }}
+                          />
+                          <span
+                            className="-ml-2 h-6 w-6 rounded-full border-2 border-white"
+                            style={{ background: t.swatch.accent }}
+                          />
+                        </span>
+                        <span className="text-sm">{t.emoji}</span>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                      <p className="text-[11px] leading-tight text-muted-foreground">{t.blurb}</p>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Persona picker */}
+            <div className="space-y-2">
+              <Label className="text-foreground">Coach personality</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {COACH_PERSONAS.map((p) => {
+                  const active = persona === p.key
+                  return (
+                    <button
+                      key={p.key}
+                      type="button"
+                      onClick={() => onPersona(p.key)}
+                      className={`press rounded-2xl border-2 p-3 text-left transition-all ${
+                        active ? 'border-primary bg-primary/10 brand-glow' : 'border-border hover:border-primary/40'
+                      }`}
+                      aria-pressed={active}
+                    >
+                      <p className="text-sm font-semibold text-foreground">
+                        {p.emoji} {p.name}
+                      </p>
+                      <p className="text-[11px] leading-tight text-muted-foreground">{p.blurb}</p>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Avatar picker */}
+            <div className="space-y-2">
+              <Label className="text-foreground">
+                Avatar <span className="text-xs text-muted-foreground">(shown on your dashboard & sidebar)</span>
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {AVATAR_OPTIONS.map((e) => {
+                  const active = avatar === e
+                  return (
+                    <button
+                      key={e}
+                      type="button"
+                      onClick={() => onAvatar(e)}
+                      className={`press flex h-11 w-11 items-center justify-center rounded-xl text-xl transition-all ${
+                        active ? 'bg-primary brand-glow scale-105' : 'bg-muted hover:bg-muted/70'
+                      }`}
+                      aria-pressed={active}
+                    >
+                      {e}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl bg-muted p-3 text-xs text-muted-foreground">
+              <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+              Changes save instantly. Theme applies across the whole app.
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ===== Change Password Section ===== */}
+        <Card className="bg-card border">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Key className="w-4 h-4 text-primary" />
+              <CardTitle className="text-lg text-foreground">
                 Change Password
               </CardTitle>
             </div>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-muted-foreground">
               Update your account password
             </CardDescription>
           </CardHeader>
@@ -683,7 +835,7 @@ export default function SettingsPage() {
               <div
                 className={`p-3 rounded-lg border text-sm ${
                   passwordMsg.type === 'success'
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                    ? 'bg-primary/10 border-primary/20 text-primary'
                     : 'bg-red-500/10 border-red-500/20 text-red-400'
                 }`}
               >
@@ -692,7 +844,7 @@ export default function SettingsPage() {
             )}
 
             <div className="space-y-2">
-              <Label className="text-gray-300">Current Password</Label>
+              <Label className="text-foreground">Current Password</Label>
               <Input
                 type="password"
                 value={oldPassword}
@@ -705,7 +857,7 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">New Password</Label>
+              <Label className="text-foreground">New Password</Label>
               <Input
                 type="password"
                 value={newPassword}
@@ -718,7 +870,7 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">Confirm New Password</Label>
+              <Label className="text-foreground">Confirm New Password</Label>
               <Input
                 type="password"
                 value={confirmPassword}
@@ -734,7 +886,7 @@ export default function SettingsPage() {
             <Button
               onClick={handleChangePassword}
               disabled={passwordSaving}
-              className="w-full bg-[#0c0e14] border border-[#2a2d37] text-gray-200 hover:bg-[#1a1d27] hover:text-white"
+              className="w-full bg-background border border text-gray-200 hover:bg-card hover:text-foreground"
               variant="outline"
             >
               {passwordSaving ? (
@@ -750,21 +902,21 @@ export default function SettingsPage() {
         </Card>
 
         {/* ===== Data & Account Section ===== */}
-        <Card className="bg-[#1a1d27] border-[#2a2d37]">
+        <Card className="bg-card border">
           <CardHeader>
-            <CardTitle className="text-lg text-white">
+            <CardTitle className="text-lg text-foreground">
               Data &amp; Account
             </CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-muted-foreground">
               Export your data or manage your account
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Export */}
-            <div className="flex items-center justify-between p-4 rounded-xl bg-[#0c0e14] border border-[#2a2d37]">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-background border border">
               <div>
                 <p className="text-gray-200 font-medium">Export Your Data</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Download all your data as a JSON file
                 </p>
               </div>
@@ -772,7 +924,7 @@ export default function SettingsPage() {
                 variant="outline"
                 onClick={handleExport}
                 disabled={exporting}
-                className="bg-[#1a1d27] border-[#2a2d37] text-gray-200 hover:text-white"
+                className="bg-card border text-gray-200 hover:text-foreground"
               >
                 {exporting ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -788,7 +940,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between p-4 rounded-xl bg-red-500/5 border border-red-500/20">
                 <div>
                   <p className="text-red-400 font-medium">Delete Account</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Permanently delete your account and all data
                   </p>
                 </div>
@@ -805,13 +957,13 @@ export default function SettingsPage() {
                 </DialogTrigger>
               </div>
 
-              <DialogContent className="bg-[#1a1d27] border-[#2a2d37] text-gray-200">
+              <DialogContent className="bg-card border text-gray-200">
                 <DialogHeader>
-                  <DialogTitle className="text-white flex items-center gap-2">
+                  <DialogTitle className="text-foreground flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5 text-red-400" />
                     Delete Account
                   </DialogTitle>
-                  <DialogDescription className="text-gray-400">
+                  <DialogDescription className="text-muted-foreground">
                     This action is permanent and cannot be undone. All your data
                     including profile, weight logs, and habit history will be
                     permanently deleted.
@@ -822,7 +974,7 @@ export default function SettingsPage() {
                   <div
                     className={`p-3 rounded-lg border text-sm ${
                       deleteMsg.type === 'success'
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                        ? 'bg-primary/10 border-primary/20 text-primary'
                         : 'bg-red-500/10 border-red-500/20 text-red-400'
                     }`}
                   >
@@ -831,7 +983,7 @@ export default function SettingsPage() {
                 )}
 
                 <div className="space-y-2">
-                  <Label className="text-gray-300">
+                  <Label className="text-foreground">
                     Type <strong className="text-red-400">DELETE</strong> to
                     confirm
                   </Label>
@@ -851,7 +1003,7 @@ export default function SettingsPage() {
                     render={
                       <Button
                         variant="outline"
-                        className="bg-[#0c0e14] border-[#2a2d37] text-gray-400"
+                        className="bg-background border text-muted-foreground"
                       />
                     }
                   >
@@ -860,7 +1012,7 @@ export default function SettingsPage() {
                   <Button
                     onClick={handleDeleteAccount}
                     disabled={deleting}
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-foreground"
                   >
                     {deleting ? (
                       <>

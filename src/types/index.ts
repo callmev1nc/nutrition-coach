@@ -19,6 +19,41 @@ export interface UserProfile {
   onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
+  // Teen Mode fields (added in migration 00002)
+  xp_total?: number;
+  level?: number;
+  streak_days?: number;
+  streak_freezes?: number;
+  last_active_date?: string;
+  theme?: string;
+  coach_persona?: string;
+  avatar_emoji?: string;
+  badges?: string[];
+  mood_today?: number | null;
+  energy_today?: number | null;
+}
+
+export interface XpEvent {
+  id: string;
+  user_id: string;
+  amount: number;
+  reason: string;
+  awarded_for_date: string;
+  created_at: string;
+}
+
+export interface ProgressSummary {
+  xp_total: number;
+  level: number;
+  streak_days: number;
+  streak_freezes: number;
+  theme: string;
+  coach_persona: string;
+  avatar_emoji: string;
+  mood_today: number | null;
+  energy_today: number | null;
+  leveled_up?: boolean;
+  previous_level?: number;
 }
 
 export interface WeightLog {
@@ -40,6 +75,8 @@ export interface HabitLog {
   steps: number;
   workout_completed: boolean;
   calories_consumed?: number;
+  mood?: number | null;
+  energy?: number | null;
   created_at: string;
 }
 
