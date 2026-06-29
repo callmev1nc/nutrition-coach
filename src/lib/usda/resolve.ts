@@ -1,6 +1,7 @@
 import { searchFoods, nutrientsFromFood, isCooked, type USDAFood } from './client';
 import { getYieldFactor, applyYieldFactor, estimateOilGrams } from './cooking-yields';
 import type { ParsedFoodItem, ResolvedFood } from '@/types';
+import { getAdminClient } from '@/lib/supabase/admin';
 
 interface CacheEntry {
   source: string;
@@ -26,10 +27,12 @@ async function checkCache(supabase: unknown, query: string): Promise<CacheEntry 
   return data ?? null;
 }
 
-async function writeCache(supabase: unknown, entry: CacheEntry): Promise<void> {
-  if (!supabase) return;
+async function writeCache(entry: CacheEntry): Promise<void> {
+  // Writes go through the service-role admin client (bypasses RLS) so the
+  // food_items table does NOT need a client-writable policy — that would let
+  // any authenticated user poison the shared nutrition cache via PostgREST.
   try {
-    await (supabase as any)
+    await (getAdminClient() as any)
       .from('food_items')
       .upsert(entry, { onConflict: 'source,source_id' });
   } catch {
@@ -166,7 +169,7 @@ export async function resolveItemToUSDA(
     nutrients_per_100g: nutrients,
     brand: best.brandOwner ?? '',
   };
-  await writeCache(supabase as any, cacheEntry);
+  await writeCache(cacheEntry);
 
   return resolved;
 }

@@ -85,13 +85,8 @@ CREATE POLICY "user_foods owner rw" ON public.user_foods
 
 CREATE POLICY "food_items read only authenticated" ON public.food_items
   for select to authenticated using (true);
-
--- Allow any authenticated user to populate/update the shared USDA/OFF reference
--- cache. This is public nutrition data; letting clients write it (server-side,
--- via the authenticated route client) is what makes the durable cache work and
--- keeps USDA rate limits in check. Without these, every cache write is silently
--- blocked by RLS and every lookup re-hits the upstream API.
-CREATE POLICY "food_items insert authenticated" ON public.food_items
-  for insert to authenticated with check (true);
-CREATE POLICY "food_items update authenticated" ON public.food_items
-  for update to authenticated using (true) with check (true);
+-- food_items is a shared USDA/OFF reference cache. Clients read it (SELECT
+-- above); writes happen server-side via the service-role admin client
+-- (src/lib/supabase/admin.ts), which bypasses RLS — so no client INSERT/UPDATE
+-- policy is needed and no authenticated user can poison the cache via
+-- PostgREST.
