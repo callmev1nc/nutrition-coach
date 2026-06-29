@@ -187,3 +187,69 @@ export interface SleepScheduleItem {
   duration_minutes: number;
   category: 'wind_down' | 'hygiene' | 'environment' | 'relaxation' | 'sleep_prep';
 }
+
+// ---------------------------------------------------------------------------
+// Food Diary types (Phase 0/1)
+// ---------------------------------------------------------------------------
+
+export type CookingMethod = 'raw' | 'grilled' | 'baked' | 'fried' | 'steamed' | 'boiled' | 'roasted' | 'sauteed';
+
+export interface ParsedFoodItem {
+  name: string;
+  quantity: number;
+  unit: string;
+  cooking_method?: CookingMethod;
+  oil?: { name: string; amount: number; unit: string };
+  fat_trimmed?: boolean;
+  is_meat?: boolean;
+}
+
+export interface ResolvedFood {
+  fdc_id: number;
+  food_name: string;
+  brand_owner?: string;
+  per100g: {
+    kcal: number;
+    protein_g: number;
+    fat_g: number;
+    carbs_g: number;
+    fiber_g?: number;
+    sugar_g?: number;
+  };
+  cooked: boolean;
+  is_raw: boolean;
+  confidence: 'high' | 'medium' | 'low';
+  data_type?: string;
+  serving_size?: string;
+  serving_quantity_g?: number;
+}
+
+export interface DiaryItem {
+  id?: string;
+  date: string;
+  meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  description?: string;
+  fdc_id?: number;
+  food_name: string;
+  brand_owner?: string;
+  portion_amount: number;
+  portion_unit: string;
+  cooking_method?: CookingMethod;
+  fat_trimmed?: boolean;
+  parent_entry_id?: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g?: number;
+  source: 'usda' | 'usda_cooked' | 'openfoodfacts' | 'manual';
+  matched_meal_plan_food_name?: string;
+  confidence?: 'high' | 'medium' | 'low';
+}
+
+export interface FoodEntryRow extends DiaryItem {
+  id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}

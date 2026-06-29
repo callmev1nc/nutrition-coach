@@ -45,20 +45,7 @@ function MealCardSkeleton() {
   )
 }
 
-function MacroBar({ label, current, target, color }: { label: string; current: number; target: number; color: string }) {
-  const pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-xs">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="text-muted-foreground">{current}g / {target}g</span>
-      </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: color }} />
-      </div>
-    </div>
-  )
-}
+import { MacroBar } from '@/components/shared/macro-bar'
 
 export default function MealsPage() {
   const supabase = useSupabase()
@@ -97,13 +84,58 @@ export default function MealsPage() {
   const generatePlan = async () => {
     setGenerating(true)
     try {
-      const res = await fetch('/api/meals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date, force: mealPlan !== null }),
-      })
-      const json = await res.json()
-      if (json.mealPlan) setMealPlan(json.mealPlan)
+      let planned: MealPlan | null = null
+
+      // Prefer streaming so the plan starts arriving in ~1-2s instead of one
+      // long blocking wait. Assemble the chunks into JSON; if anything fails,
+      // fall back to the (also token-capped) non-streaming endpoint below.
+      try {
+        const streamRes = await fetch('/api/meals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, force: mealPlan !== null, stream: true }),
+        })
+        const isStream =
+          streamRes.ok &&
+          (streamRes.headers.get('content-type') || '').includes('text/plain') &&
+          !!streamRes.body
+
+        if (isStream && streamRes.body) {
+          const reader = streamRes.body.getReader()
+          const decoder = new TextDecoder()
+          let assembled = ''
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            assembled += decoder.decode(value, { stream: true })
+          }
+          try {
+            const parsed = JSON.parse(assembled)
+            if (parsed?.meals?.length) {
+              planned = { ...parsed, date } as MealPlan
+            }
+          } catch {
+            // incomplete/invalid streamed JSON — fall through to fallback
+          }
+        } else if (streamRes.ok) {
+          const json = await streamRes.json()
+          if (json.mealPlan) planned = json.mealPlan as MealPlan
+        }
+      } catch {
+        // streaming fetch failed — use the non-streaming fallback
+      }
+
+      if (!planned) {
+        const res = await fetch('/api/meals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, force: mealPlan !== null }),
+        })
+        const json = await res.json()
+        if (json.mealPlan) planned = json.mealPlan as MealPlan
+      }
+
+      if (planned) setMealPlan(planned)
     } finally {
       setGenerating(false)
     }

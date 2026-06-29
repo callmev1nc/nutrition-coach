@@ -56,6 +56,8 @@ export const XP_REWARDS = {
   generate_meal_plan: 20,
   finish_workout_day: 30,
   body_fat_measure: 10,
+  log_food: 10,
+  log_water: 10,
 } as const;
 
 export type XpAction = keyof typeof XP_REWARDS;

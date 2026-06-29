@@ -6,26 +6,19 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient();
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (profileError || !profile) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 404 }
-      );
+    if (!profile) {
+      return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -40,15 +33,33 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (!latestMealPlan) {
-      return NextResponse.json(
-        { error: 'No meal plan found. Generate a meal plan first.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No meal plan found. Generate a meal plan first.' }, { status: 400 });
     }
+
+    // Cache check: return cached grocery if same budget
+    if (latestMealPlan.grocery_list && latestMealPlan.grocery_budget === budget) {
+      return NextResponse.json({
+        groceryList: latestMealPlan.grocery_list,
+        cached: true,
+      });
+    }
+
+    const { data: prefRows } = await supabase
+      .from('learned_preferences')
+      .select('*')
+      .eq('user_id', user.id);
+
+    const ctx = {
+      persona: profile.coach_persona,
+      age: profile.age,
+      gender: profile.gender,
+      learnedPreferences: prefRows ?? [],
+    };
 
     const rawGroceryList = await generateGroceryList(
       latestMealPlan as unknown as Record<string, unknown>,
-      budget
+      budget,
+      ctx
     );
 
     let parsedList: {
@@ -64,18 +75,22 @@ export async function POST(request: Request) {
     try {
       parsedList = JSON.parse(rawGroceryList);
     } catch {
-      console.error('Failed to parse Gemini grocery list response');
-      return NextResponse.json(
-        { error: 'Failed to generate a valid grocery list' },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: 'Failed to generate a valid grocery list' }, { status: 502 });
     }
 
-    return NextResponse.json({ groceryList: parsedList });
+    // Write back to meal_plans for caching
+    await supabase
+      .from('meal_plans')
+      .update({
+        grocery_list: parsedList as any,
+        grocery_budget: budget,
+      })
+      .eq('id', latestMealPlan.id);
+
+    return NextResponse.json({ groceryList: parsedList, cached: false });
   } catch (error) {
     console.error('Grocery POST error:', error);
-    const message =
-      error instanceof Error ? error.message : 'Internal server error';
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
