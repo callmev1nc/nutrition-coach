@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { searchFoods, nutrientsFromFood } from '@/lib/usda/client';
 
 export async function GET(request: Request) {
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
       const nutrients = nutrientsFromFood(f);
       if (!nutrients) continue;
       try {
-        await supabase.from('food_items').upsert({
+        await (getAdminClient() as any).from('food_items').upsert({
           source: 'usda',
           source_id: String(f.fdcId),
           normalized_query: normalized,

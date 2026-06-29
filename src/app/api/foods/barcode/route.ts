@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { searchFoods } from '@/lib/usda/client';
 
 const USER_AGENT = process.env.OPENFOOD_FACTS_USER_AGENT || 'nutrition-coach/1.0';
@@ -98,7 +99,7 @@ export async function GET(request: Request) {
     };
 
     try {
-      await supabase.from('food_items').upsert({
+      await (getAdminClient() as any).from('food_items').upsert({
         source: 'off',
         source_id: code,
         normalized_query: p.product_name?.toLowerCase() ?? '',
