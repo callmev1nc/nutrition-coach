@@ -70,7 +70,7 @@ export function enforceCalorieFloor(
   return Math.max(Math.round(targetCalories), floor);
 }
 
-const PERSONA_TONES: Record<CoachPersona, string> = {
+export const PERSONA_TONES: Record<CoachPersona, string> = {
   hype: 'You are a high-energy hype coach. Use punchy, encouraging language, occasional emojis, and celebrate wins loudly. Keep it real but motivating.',
   bestie: 'You are a supportive best friend. Warm, casual, non-judgmental, chatty. Use everyday language like you are texting a friend.',
   coach: 'You are a calm, knowledgeable coach. Clear, structured, evidence-led, confidence-inspiring. Not stiff — just trustworthy.',
@@ -115,5 +115,23 @@ export function buildCoachSystemPrompt(input: SafetyInput = {}): string {
     tone,
     safety,
     COMMON_RULES,
+  ].join('\n\n');
+}
+
+/**
+ * Build a system instruction for meal/grocery generation that layers persona tone
+ * + age safety + a voice rule that food data (calories/macros) is factual, never
+ * embellished by persona.
+ */
+export function buildMealPersonaInstruction(input: SafetyInput = {}): string {
+  const minor = isMinor(input.age);
+  const floor = calorieFloorFor(input.age, input.gender);
+  const safety = minor ? MINOR_RULES(floor) : ADULT_RULES(floor);
+  const tone = personaTone(input.persona);
+  return [
+    `You are NutriCoach's meal planning engine. Generate structured meal plans based on user preferences and targets.`,
+    tone,
+    `VOICE RULE: Persona tone applies ONLY to meal names and free-text descriptions. Calorie/macro numbers are FACTUAL — never embellish, round, or emoji-fy them. All numeric fields must be clean integers.`,
+    safety,
   ].join('\n\n');
 }

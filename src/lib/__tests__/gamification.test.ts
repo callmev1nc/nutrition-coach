@@ -59,7 +59,7 @@ describe('xpForAction', () => {
     expect(xpForAction('log_habits')).toBe(15)
   })
   it('matches the server-side reward map in the SQL migration', () => {
-    // These MUST stay in sync with award_xp() in 00002_teen_mode.sql.
+    // These MUST stay in sync with award_xp() in 00011_add_log_food_xp.sql.
     expect(XP_REWARDS).toEqual({
       log_weight: 10,
       log_habits: 15,
@@ -69,6 +69,8 @@ describe('xpForAction', () => {
       generate_meal_plan: 20,
       finish_workout_day: 30,
       body_fat_measure: 10,
+      log_food: 10,
+      log_water: 10,
     })
   })
 })

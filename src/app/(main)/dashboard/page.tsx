@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSupabase } from '@/components/providers/supabase-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import { useCountUp } from '@/components/motion/use-count-up'
+import { MacroBar } from '@/components/shared/macro-bar'
 import { Confetti } from '@/components/motion/confetti'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,8 @@ import {
   CartesianGrid,
 } from 'recharts'
 import { LogWeightDialog } from '@/components/dashboard/LogWeightDialog'
+import { TodaysFoodCard } from '@/components/dashboard/todays-food-card'
+import { WaterTrackerCard } from '@/components/dashboard/water-tracker-card'
 import type { UserProfile, WeightLog, HabitLog } from '@/types'
 import { calculateAll } from '@/lib/calculations'
 import { xpProgress } from '@/lib/gamification'
@@ -153,38 +156,6 @@ function HabitRing({
         <p className="text-[11px] text-muted-foreground">
           {current}/{target} {unit}
         </p>
-      </div>
-    </div>
-  )
-}
-
-// ---------- Macro Bar ----------
-
-function MacroBar({
-  label,
-  current,
-  target,
-  color,
-}: {
-  label: string
-  current: number
-  target: number
-  color: string
-}) {
-  const pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-xs">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="text-muted-foreground">
-          {current}g / {target}g
-        </span>
-      </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, backgroundColor: color }}
-        />
       </div>
     </div>
   )
@@ -514,6 +485,9 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {/* ===== WATER (promoted, quick taps) ===== */}
+      <WaterTrackerCard currentMl={derived.waterMl} onUpdate={loadData} />
+
       {/* ===== STATS ROW ===== */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-card">
@@ -680,6 +654,9 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* ===== TODAY'S FOOD ===== */}
+      <TodaysFoodCard />
 
       {/* ===== TODAY'S PLAN ===== */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

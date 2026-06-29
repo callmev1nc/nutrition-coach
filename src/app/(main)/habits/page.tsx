@@ -35,20 +35,27 @@ export default function HabitsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const [todayRes, recentRes, profRes] = await Promise.all([
+      const [todayRes, recentRes, profRes, diaryRes] = await Promise.all([
         supabase.from('habit_logs').select('*').eq('user_id', user.id).eq('date', date).maybeSingle(),
         supabase.from('habit_logs').select('*').eq('user_id', user.id).order('date', { ascending: true }).limit(7),
         supabase.from('profiles').select('streak_freezes, avatar_emoji').eq('id', user.id).single(),
+        supabase.from('food_entries').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('date', date),
       ])
+
+      const hasDiaryEntries = (diaryRes?.count ?? 0) > 0
 
       if (todayRes.data) {
         setWater(todayRes.data.water_ml || 0)
         setSleep(todayRes.data.sleep_hours || 0)
         setSteps(todayRes.data.steps || 0)
         setWorkout(todayRes.data.workout_completed || false)
-        setCalories(todayRes.data.calories_consumed?.toString() || '')
+        if (hasDiaryEntries) {
+          setCalories(`from diary (${todayRes.data.calories_consumed ?? 0})`)
+        } else {
+          setCalories(todayRes.data.calories_consumed?.toString() || '')
+        }
       } else {
-        setWater(0); setSleep(0); setSteps(0); setWorkout(false); setCalories('')
+        setWater(0); setSleep(0); setSteps(0); setWorkout(false); setCalories(hasDiaryEntries ? 'from diary' : '')
       }
 
       if (recentRes.data) setRecentLogs(recentRes.data)
@@ -65,15 +72,18 @@ export default function HabitsPage() {
   const saveData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    await supabase.from('habit_logs').upsert({
+    const payload: Record<string, unknown> = {
       user_id: user.id,
       date,
       water_ml: water,
       sleep_hours: sleep,
       steps,
       workout_completed: workout,
-      calories_consumed: calories ? parseInt(calories) : null,
-    }, { onConflict: 'user_id,date' })
+    }
+    if (!calories.startsWith('from diary')) {
+      payload.calories_consumed = calories ? parseInt(calories) : null
+    }
+    await supabase.from('habit_logs').upsert(payload, { onConflict: 'user_id,date' })
 
     // Gamification: XP for logging + bonus for a completed workout.
     await awardXp(supabase, 'log_habits')
@@ -262,7 +272,11 @@ export default function HabitsPage() {
               onChange={e => setCalories(e.target.value)}
               className="bg-background border text-foreground"
               placeholder="e.g. 1850"
+              readOnly={calories.startsWith('from diary')}
             />
+            {calories.startsWith('from diary') && (
+              <p className="mt-1 text-xs text-muted-foreground">from food diary</p>
+            )}
           </CardContent>
         </Card>
       </div>
